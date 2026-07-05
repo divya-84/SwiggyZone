@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { RootState } from '@/store';
 import { Button, Card } from '@swiggyzone/ui';
-import { io } from 'socket.io-client';
 import {
   Sparkles,
   MapPin,
@@ -282,11 +281,15 @@ export default function DeliveryDashboard() {
               Rider ID: {profile?.licensePlate || 'N/A'}
             </span>
           </div>
-          <p className="text-xs text-dark-muted">Welcome back, Amit. Manage your shifts, routes, and earnings.</p>
+          <p className="text-xs text-dark-muted">
+            Welcome back, Amit. Manage your shifts, routes, and earnings.
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className={`text-xs font-bold ${profile?.isActive ? 'text-green-500' : 'text-dark-muted'}`}>
+          <span
+            className={`text-xs font-bold ${profile?.isActive ? 'text-green-500' : 'text-dark-muted'}`}
+          >
             {profile?.isActive ? 'ONLINE & ACTIVE' : 'OFFLINE'}
           </span>
           <button
@@ -314,14 +317,40 @@ export default function DeliveryDashboard() {
       {/* Analytics Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Shift Earnings', value: `₹${profile?.totalEarnings || 0}`, desc: 'Earned today', icon: DollarSign, color: 'text-green-500 bg-green-500/10 border-green-500/10' },
-          { label: 'Completions', value: `${profile?.totalDeliveries || 0} jobs`, desc: 'Orders completed', icon: ShieldCheck, color: 'text-brand-saffron bg-brand-saffron/10 border-brand-saffron/10' },
-          { label: 'Rating', value: `★ ${profile?.avgRating || '5.0'}`, desc: 'Average rating', icon: Star, color: 'text-amber-500 bg-amber-500/10 border-amber-500/10' },
-          { label: 'Active Status', value: profile?.isActive ? 'ON' : 'OFF', desc: 'Rider availability', icon: Activity, color: 'text-blue-500 bg-blue-500/10 border-blue-500/10' },
+          {
+            label: 'Shift Earnings',
+            value: `₹${profile?.totalEarnings || 0}`,
+            desc: 'Earned today',
+            icon: DollarSign,
+            color: 'text-green-500 bg-green-500/10 border-green-500/10',
+          },
+          {
+            label: 'Completions',
+            value: `${profile?.totalDeliveries || 0} jobs`,
+            desc: 'Orders completed',
+            icon: ShieldCheck,
+            color: 'text-brand-saffron bg-brand-saffron/10 border-brand-saffron/10',
+          },
+          {
+            label: 'Rating',
+            value: `★ ${profile?.avgRating || '5.0'}`,
+            desc: 'Average rating',
+            icon: Star,
+            color: 'text-amber-500 bg-amber-500/10 border-amber-500/10',
+          },
+          {
+            label: 'Active Status',
+            value: profile?.isActive ? 'ON' : 'OFF',
+            desc: 'Rider availability',
+            icon: Activity,
+            color: 'text-blue-500 bg-blue-500/10 border-blue-500/10',
+          },
         ].map((stat, idx) => (
           <Card key={idx} className="p-4 border border-dark-border/40 space-y-3">
             <div className="flex justify-between items-start">
-              <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">{stat.label}</span>
+              <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">
+                {stat.label}
+              </span>
               <div className={`p-1.5 rounded-lg border ${stat.color}`}>
                 <stat.icon className="w-4 h-4" />
               </div>
@@ -342,11 +371,14 @@ export default function DeliveryDashboard() {
             <h2 className="text-base font-extrabold text-white">AI Dispatch & Routing Optimizer</h2>
           </div>
           <p className="text-xs text-dark-muted">
-            Auto-assign active riders, batch nearby Indiranagar deliveries, and compute shortest multi-stop routes.
+            Auto-assign active riders, batch nearby Indiranagar deliveries, and compute shortest
+            multi-stop routes.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-xs font-black uppercase tracking-wider ${aiOptimizedMode ? 'text-brand-saffron' : 'text-dark-muted'}`}>
+          <span
+            className={`text-xs font-black uppercase tracking-wider ${aiOptimizedMode ? 'text-brand-saffron' : 'text-dark-muted'}`}
+          >
             {aiOptimizedMode ? 'Optimizer Mode: ON' : 'Optimizer Mode: OFF'}
           </span>
           <button
@@ -373,12 +405,16 @@ export default function DeliveryDashboard() {
             <Card glass className="p-5 border border-dark-border/40 space-y-5 bg-dark-surface/30">
               <div className="flex items-center gap-2 border-b border-dark-border pb-3">
                 <SettingsIcon className="w-4 h-4 text-brand-saffron" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">Simulation Parameters</h3>
+                <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                  Simulation Parameters
+                </h3>
               </div>
 
               {/* Traffic Selector */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Traffic Congestion</label>
+                <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                  Traffic Congestion
+                </label>
                 <div className="grid grid-cols-3 gap-1 bg-dark-bg p-1 rounded-xl border border-dark-border">
                   {(['LOW', 'MEDIUM', 'HEAVY'] as const).map((t) => (
                     <button
@@ -401,7 +437,9 @@ export default function DeliveryDashboard() {
 
               {/* Weather Selector */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Weather Condition</label>
+                <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                  Weather Condition
+                </label>
                 <select
                   value={simWeather}
                   onChange={(e: any) => setSimWeather(e.target.value)}
@@ -415,7 +453,9 @@ export default function DeliveryDashboard() {
 
               {/* Toggle Batching */}
               <div className="flex items-center justify-between pt-2">
-                <span className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Enable Batch Deliveries</span>
+                <span className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                  Enable Batch Deliveries
+                </span>
                 <button
                   type="button"
                   onClick={() => setEnableBatching(!enableBatching)}
@@ -438,15 +478,17 @@ export default function DeliveryDashboard() {
                 <div className="flex justify-between items-center border-b border-dark-border pb-3">
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-4 h-4 text-brand-saffron" />
-                    <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">ETA Predictor Engine</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                      ETA Predictor Engine
+                    </h3>
                   </div>
                   <span
                     className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
                       optimizationResult.etaBreakdown.confidenceScore >= 80
                         ? 'bg-green-500/10 text-green-500'
                         : optimizationResult.etaBreakdown.confidenceScore >= 65
-                        ? 'bg-amber-500/10 text-amber-500'
-                        : 'bg-red-500/10 text-red-500'
+                          ? 'bg-amber-500/10 text-amber-500'
+                          : 'bg-red-500/10 text-red-500'
                     }`}
                   >
                     Confidence: {optimizationResult.etaBreakdown.confidenceScore}%
@@ -456,11 +498,15 @@ export default function DeliveryDashboard() {
                 <div className="space-y-2 text-xs text-dark-muted">
                   <div className="flex justify-between">
                     <span>Base Kitchen Prep Time</span>
-                    <span className="text-dark-text font-bold">{optimizationResult.etaBreakdown.basePrepTime}m</span>
+                    <span className="text-dark-text font-bold">
+                      {optimizationResult.etaBreakdown.basePrepTime}m
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Transit Travel Duration</span>
-                    <span className="text-dark-text font-bold">{optimizationResult.etaBreakdown.travelTime}m</span>
+                    <span className="text-dark-text font-bold">
+                      {optimizationResult.etaBreakdown.travelTime}m
+                    </span>
                   </div>
                   {optimizationResult.etaBreakdown.trafficDelay > 0 && (
                     <div className="flex justify-between text-amber-500">
@@ -483,7 +529,9 @@ export default function DeliveryDashboard() {
                 </div>
 
                 <div className="pt-3 border-t border-dark-border/40 space-y-1.5">
-                  <div className="text-[9px] font-bold text-dark-muted uppercase tracking-wider">AI Dispatches Logs</div>
+                  <div className="text-[9px] font-bold text-dark-muted uppercase tracking-wider">
+                    AI Dispatches Logs
+                  </div>
                   {optimizationResult.etaBreakdown.factors.map((f: string, idx: number) => (
                     <div key={idx} className="text-[10px] text-dark-muted flex gap-1.5 items-start">
                       <span className="text-brand-saffron shrink-0">✔</span>
@@ -546,31 +594,49 @@ export default function DeliveryDashboard() {
                           stroke="#FF6B09"
                           strokeWidth="3"
                           strokeDasharray="500"
-                          strokeDashoffset={500 - (animatedPointIndex * (500 / (optimizationResult.route.coordinates.length || 1)))}
+                          strokeDashoffset={
+                            500 -
+                            animatedPointIndex *
+                              (500 / (optimizationResult.route.coordinates.length || 1))
+                          }
                           className="transition-all duration-300 ease-out"
                         />
                       </svg>
                     )}
 
                     <div className="absolute left-[30px] bottom-[30px] flex flex-col items-center">
-                      <div className="w-7 h-7 bg-dark-surface border border-dark-border rounded-full flex items-center justify-center shadow">🛵</div>
+                      <div className="w-7 h-7 bg-dark-surface border border-dark-border rounded-full flex items-center justify-center shadow">
+                        🛵
+                      </div>
                       <span className="text-[9px] font-bold text-dark-muted mt-1">Rider Amit</span>
                     </div>
 
                     <div className="absolute left-[130px] top-[20px] flex flex-col items-center">
-                      <div className="w-7 h-7 bg-brand-saffron/10 border-2 border-brand-saffron rounded-full flex items-center justify-center shadow">🏪</div>
-                      <span className="text-[9px] font-bold text-brand-saffron mt-1">Saffron Hub Kitchen</span>
+                      <div className="w-7 h-7 bg-brand-saffron/10 border-2 border-brand-saffron rounded-full flex items-center justify-center shadow">
+                        🏪
+                      </div>
+                      <span className="text-[9px] font-bold text-brand-saffron mt-1">
+                        Saffron Hub Kitchen
+                      </span>
                     </div>
 
                     <div className="absolute left-[280px] top-[50px] flex flex-col items-center">
-                      <div className="w-7 h-7 bg-dark-surface border border-dark-border rounded-full flex items-center justify-center shadow">🏠</div>
-                      <span className="text-[9px] font-bold text-dark-muted mt-1">Customer A (Rahul)</span>
+                      <div className="w-7 h-7 bg-dark-surface border border-dark-border rounded-full flex items-center justify-center shadow">
+                        🏠
+                      </div>
+                      <span className="text-[9px] font-bold text-dark-muted mt-1">
+                        Customer A (Rahul)
+                      </span>
                     </div>
 
                     {optimizationResult.isBatched && (
                       <div className="absolute right-[30px] bottom-[40px] flex flex-col items-center">
-                        <div className="w-7 h-7 bg-dark-surface border border-dark-border rounded-full flex items-center justify-center shadow">🏠</div>
-                        <span className="text-[9px] font-bold text-dark-muted mt-1">Customer B (Sanjana)</span>
+                        <div className="w-7 h-7 bg-dark-surface border border-dark-border rounded-full flex items-center justify-center shadow">
+                          🏠
+                        </div>
+                        <span className="text-[9px] font-bold text-dark-muted mt-1">
+                          Customer B (Sanjana)
+                        </span>
                       </div>
                     )}
 
@@ -578,11 +644,11 @@ export default function DeliveryDashboard() {
                       <div
                         className="absolute w-5 h-5 bg-brand-saffron rounded-full border border-white flex items-center justify-center shadow-lg shadow-brand-saffron/40 text-[10px] transition-all duration-300 ease-out"
                         style={{
-                          left: `${50 + (animatedPointIndex * (400 / (optimizationResult.route.coordinates.length || 1)))}px`,
+                          left: `${50 + animatedPointIndex * (400 / (optimizationResult.route.coordinates.length || 1))}px`,
                           top: `${
                             optimizationResult.isBatched
-                              ? 150 - (animatedPointIndex * 1.5)
-                              : 150 - (animatedPointIndex * 2)
+                              ? 150 - animatedPointIndex * 1.5
+                              : 150 - animatedPointIndex * 2
                           }px`,
                         }}
                       >
@@ -593,20 +659,36 @@ export default function DeliveryDashboard() {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 text-center text-xs">
                     <div className="bg-dark-bg p-2 rounded-xl border border-dark-border/40">
-                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">Total distance</div>
-                      <div className="text-dark-text font-black">{optimizationResult.route.totalDistance} km</div>
+                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">
+                        Total distance
+                      </div>
+                      <div className="text-dark-text font-black">
+                        {optimizationResult.route.totalDistance} km
+                      </div>
                     </div>
                     <div className="bg-dark-bg p-2 rounded-xl border border-dark-border/40">
-                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">Distance saved</div>
-                      <div className="text-green-500 font-black">+{optimizationResult.route.distanceSaved} km</div>
+                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">
+                        Distance saved
+                      </div>
+                      <div className="text-green-500 font-black">
+                        +{optimizationResult.route.distanceSaved} km
+                      </div>
                     </div>
                     <div className="bg-dark-bg p-2 rounded-xl border border-dark-border/40">
-                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">Time Optimized</div>
-                      <div className="text-green-500 font-black">-{optimizationResult.route.timeSavedMins} mins</div>
+                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">
+                        Time Optimized
+                      </div>
+                      <div className="text-green-500 font-black">
+                        -{optimizationResult.route.timeSavedMins} mins
+                      </div>
                     </div>
                     <div className="bg-dark-bg p-2 rounded-xl border border-dark-border/40">
-                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">CO2 Reduced</div>
-                      <div className="text-green-500 font-black">-{optimizationResult.route.co2ReducedKg} kg</div>
+                      <div className="text-dark-muted text-[9px] font-bold uppercase tracking-wider">
+                        CO2 Reduced
+                      </div>
+                      <div className="text-green-500 font-black">
+                        -{optimizationResult.route.co2ReducedKg} kg
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -619,7 +701,10 @@ export default function DeliveryDashboard() {
                   </h3>
                   <div className="space-y-3">
                     {optimizationResult.orders.map((ord: any, idx: number) => (
-                      <Card key={ord.id} className="p-4 border border-dark-border/40 flex justify-between items-center gap-4 bg-dark-surface/40">
+                      <Card
+                        key={ord.id}
+                        className="p-4 border border-dark-border/40 flex justify-between items-center gap-4 bg-dark-surface/40"
+                      >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="bg-brand-saffron text-white text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded">
@@ -632,16 +717,23 @@ export default function DeliveryDashboard() {
                             <span>{ord.address}</span>
                           </div>
                           <div className="text-[10px] text-dark-muted flex gap-3 pt-1">
-                            <span>ETA: <strong className="text-brand-saffron">{ord.eta}</strong></span>
+                            <span>
+                              ETA: <strong className="text-brand-saffron">{ord.eta}</strong>
+                            </span>
                             <span>•</span>
                             <span>Distance: {ord.distance} km</span>
                             <span>•</span>
-                            <span>OTP: <strong className="text-green-500 font-mono">{ord.otpCode}</strong></span>
+                            <span>
+                              OTP:{' '}
+                              <strong className="text-green-500 font-mono">{ord.otpCode}</strong>
+                            </span>
                           </div>
                         </div>
 
                         <div className="text-right space-y-2">
-                          <div className="text-xs font-bold text-dark-muted">Order Payout: ₹60.00</div>
+                          <div className="text-xs font-bold text-dark-muted">
+                            Order Payout: ₹60.00
+                          </div>
                           <Button
                             size="sm"
                             variant="secondary"
@@ -699,12 +791,27 @@ export default function DeliveryDashboard() {
               ))}
             </div>
             <svg className="absolute w-full h-full" viewBox="0 0 500 200">
-              <path d="M 50 100 Q 250 20 450 100" fill="none" stroke="#334155" strokeWidth="4" strokeDasharray="8" />
-              <path d="M 50 100 Q 250 20 450 100" fill="none" stroke="#FF6B09" strokeWidth="4" strokeDasharray="450" strokeDashoffset="250" />
+              <path
+                d="M 50 100 Q 250 20 450 100"
+                fill="none"
+                stroke="#334155"
+                strokeWidth="4"
+                strokeDasharray="8"
+              />
+              <path
+                d="M 50 100 Q 250 20 450 100"
+                fill="none"
+                stroke="#FF6B09"
+                strokeWidth="4"
+                strokeDasharray="450"
+                strokeDashoffset="250"
+              />
             </svg>
 
             <div className="absolute left-[30px] top-[90px] flex flex-col items-center">
-              <div className="w-6 h-6 bg-dark-surface border-2 border-dark-border rounded-full flex items-center justify-center">🏪</div>
+              <div className="w-6 h-6 bg-dark-surface border-2 border-dark-border rounded-full flex items-center justify-center">
+                🏪
+              </div>
               <span className="text-[9px] font-bold text-dark-muted mt-1">Saffron Hub Kitchen</span>
             </div>
 
@@ -713,15 +820,22 @@ export default function DeliveryDashboard() {
             </div>
 
             <div className="absolute right-[30px] top-[90px] flex flex-col items-center">
-              <div className="w-6 h-6 bg-brand-saffron/10 border-2 border-brand-saffron rounded-full flex items-center justify-center">🏠</div>
+              <div className="w-6 h-6 bg-brand-saffron/10 border-2 border-brand-saffron rounded-full flex items-center justify-center">
+                🏠
+              </div>
               <span className="text-[9px] font-bold text-brand-saffron mt-1">Customer Home</span>
             </div>
           </div>
 
           <div className="bg-dark-surface p-4 border border-dark-border rounded-xl flex items-center justify-between text-xs">
             <div className="space-y-1">
-              <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Demo Code Alert</span>
-              <p>Demo simulation OTP is: <strong className="text-brand-saffron text-sm">{activeDelivery.otpCode}</strong></p>
+              <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">
+                Demo Code Alert
+              </span>
+              <p>
+                Demo simulation OTP is:{' '}
+                <strong className="text-brand-saffron text-sm">{activeDelivery.otpCode}</strong>
+              </p>
             </div>
             <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">
               <Navigation className="w-3.5 h-3.5" /> Navigate
@@ -740,13 +854,18 @@ export default function DeliveryDashboard() {
             {availableOrders.length > 0 ? (
               <div className="space-y-4">
                 {availableOrders.map((ord) => (
-                  <Card key={ord.id} className="p-4 border border-dark-border/40 flex justify-between items-center gap-4 bg-dark-surface/40">
+                  <Card
+                    key={ord.id}
+                    className="p-4 border border-dark-border/40 flex justify-between items-center gap-4 bg-dark-surface/40"
+                  >
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-1.5 py-0.5 rounded">
                           ★ 4.8
                         </span>
-                        <h4 className="font-extrabold text-sm">{ord.restaurant?.name || 'Gourmet Kitchen'}</h4>
+                        <h4 className="font-extrabold text-sm">
+                          {ord.restaurant?.name || 'Gourmet Kitchen'}
+                        </h4>
                       </div>
                       <p className="text-xs text-dark-muted flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-brand-saffron shrink-0" />
@@ -780,19 +899,30 @@ export default function DeliveryDashboard() {
             <Card className="p-4 border border-dark-border/40 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-dark-muted">Latest Reviews</span>
-                <span className="text-xs text-brand-saffron hover:underline cursor-pointer">View All</span>
+                <span className="text-xs text-brand-saffron hover:underline cursor-pointer">
+                  View All
+                </span>
               </div>
               <div className="space-y-3.5">
                 {[
-                  { user: 'Mahesh K.', comment: 'Super fast delivery, food was burning hot!', score: 5 },
+                  {
+                    user: 'Mahesh K.',
+                    comment: 'Super fast delivery, food was burning hot!',
+                    score: 5,
+                  },
                   { user: 'Sanjana R.', comment: 'Friendly rider and clean packaging.', score: 5 },
                 ].map((rev, idx) => (
-                  <div key={idx} className="space-y-1 text-xs border-b border-dark-border/40 pb-2.5 last:border-b-0 last:pb-0">
+                  <div
+                    key={idx}
+                    className="space-y-1 text-xs border-b border-dark-border/40 pb-2.5 last:border-b-0 last:pb-0"
+                  >
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-dark-text">{rev.user}</span>
                       <span className="text-amber-500 font-bold text-[10px]">★ {rev.score}</span>
                     </div>
-                    <p className="text-[11px] text-dark-muted italic">&ldquo;{rev.comment}&rdquo;</p>
+                    <p className="text-[11px] text-dark-muted italic">
+                      &ldquo;{rev.comment}&rdquo;
+                    </p>
                   </div>
                 ))}
               </div>
@@ -810,11 +940,17 @@ export default function DeliveryDashboard() {
         <div className="bg-dark-surface border border-dark-border rounded-2xl overflow-hidden divide-y divide-dark-border/40">
           {history.length > 0 ? (
             history.map((job) => (
-              <div key={job.id} className="p-5 flex justify-between items-center text-xs flex-wrap gap-4">
+              <div
+                key={job.id}
+                className="p-5 flex justify-between items-center text-xs flex-wrap gap-4"
+              >
                 <div className="space-y-1">
-                  <div className="font-bold text-dark-text">Job ID: #{job.id.substring(0, 8)}...</div>
+                  <div className="font-bold text-dark-text">
+                    Job ID: #{job.id.substring(0, 8)}...
+                  </div>
                   <div className="text-[10px] text-dark-muted">
-                    Store: <strong className="text-brand-saffron">{job.restaurant?.name}</strong> • Completed: {new Date(job.updatedAt).toLocaleTimeString()}
+                    Store: <strong className="text-brand-saffron">{job.restaurant?.name}</strong> •
+                    Completed: {new Date(job.updatedAt).toLocaleTimeString()}
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -837,14 +973,19 @@ export default function DeliveryDashboard() {
       {showOtpModal && activeDelivery && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <Card className="w-full max-w-sm bg-dark-surface border border-dark-border p-6 rounded-3xl relative space-y-6">
-            <button className="absolute right-4 top-4 text-dark-muted hover:text-dark-text" onClick={() => setShowOtpModal(false)}>
+            <button
+              className="absolute right-4 top-4 text-dark-muted hover:text-dark-text"
+              onClick={() => setShowOtpModal(false)}
+            >
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center space-y-1">
               <ShieldCheck className="w-12 h-12 text-brand-saffron mx-auto" />
               <h3 className="font-extrabold text-base pt-2">Enter Verification Code</h3>
-              <p className="text-xs text-dark-muted">Ask the customer for their 4-digit SwiggyZone verification pin</p>
+              <p className="text-xs text-dark-muted">
+                Ask the customer for their 4-digit SwiggyZone verification pin
+              </p>
             </div>
 
             {otpError && (

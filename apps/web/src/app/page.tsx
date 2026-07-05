@@ -8,7 +8,6 @@ import { RootState } from '@/store';
 import { logout } from '@/store/authSlice';
 import { addToCart, clearCart } from '@/store/cartSlice';
 import { Button, Card } from '@swiggyzone/ui';
-import { io } from 'socket.io-client';
 import {
   Sparkles,
   Search,
@@ -39,16 +38,21 @@ import {
 
 function estimateNutritionAndDiet(dish: any) {
   const name = dish.name.toLowerCase();
-  
+
   // Estimate values
   let calories = dish.calories || 250;
   let protein = dish.protein || 5;
   let carbs = dish.carbohydrates || 20;
   let fats = dish.fats || 8;
-  
+
   // If not seeded, guess based on food keywords
   if (protein === 0 && fats === 0 && carbs === 0) {
-    if (name.includes('chicken') || name.includes('mutton') || name.includes('fish') || name.includes('meat')) {
+    if (
+      name.includes('chicken') ||
+      name.includes('mutton') ||
+      name.includes('fish') ||
+      name.includes('meat')
+    ) {
       protein = 28;
       carbs = 10;
       fats = 14;
@@ -80,11 +84,11 @@ function estimateNutritionAndDiet(dish: any) {
       calories = calories || 120;
     }
   }
-  
+
   // Calculate Health Score (1-100)
-  let healthScore = 100 - (fats * 2) - Math.max(0, (calories - 200) / 10) + (protein * 1.5);
+  let healthScore = 100 - fats * 2 - Math.max(0, (calories - 200) / 10) + protein * 1.5;
   healthScore = Math.max(10, Math.min(99, Math.round(healthScore)));
-  
+
   // Determine Diet Compatibility
   let compatibility = 'Balanced Diet';
   if (fats / (protein + carbs + 0.1) > 1.2) {
@@ -93,10 +97,16 @@ function estimateNutritionAndDiet(dish: any) {
     compatibility = 'High Protein 💪';
   } else if (carbs <= 15) {
     compatibility = 'Low Carb 🥗';
-  } else if (dish.isVeg && !name.includes('paneer') && !name.includes('cheese') && !name.includes('egg') && !name.includes('cream')) {
+  } else if (
+    dish.isVeg &&
+    !name.includes('paneer') &&
+    !name.includes('cheese') &&
+    !name.includes('egg') &&
+    !name.includes('cream')
+  ) {
     compatibility = 'Vegan Friendly 🌱';
   }
-  
+
   return { calories, protein, carbs, fats, healthScore, compatibility };
 }
 
@@ -110,7 +120,9 @@ export default function CustomerDashboard() {
   const cartTotal = useSelector((state: RootState) => state.cart.total);
 
   // Layout Tab State
-  const [activeTab, setActiveTab] = React.useState<'home' | 'search' | 'offers' | 'orders' | 'wallet' | 'settings'>('home');
+  const [activeTab, setActiveTab] = React.useState<
+    'home' | 'search' | 'offers' | 'orders' | 'wallet' | 'settings'
+  >('home');
 
   // Location State
   const [locationName, setLocationName] = React.useState('Indiranagar, Bangalore');
@@ -127,14 +139,19 @@ export default function CustomerDashboard() {
                 headers: {
                   'User-Agent': 'SwiggyZone-Food-Delivery-App',
                 },
-              }
+              },
             );
             if (response.ok) {
               const data = await response.json();
               const address = data.address;
-              const suburb = address.suburb || address.neighbourhood || address.residential || address.road || '';
+              const suburb =
+                address.suburb ||
+                address.neighbourhood ||
+                address.residential ||
+                address.road ||
+                '';
               const city = address.city || address.town || address.village || address.county || '';
-              
+
               if (suburb && city) {
                 setLocationName(`${suburb}, ${city}`);
               } else if (data.display_name) {
@@ -153,7 +170,7 @@ export default function CustomerDashboard() {
         (error) => {
           console.warn('Geolocation access denied or failed:', error.message);
         },
-        { enableHighAccuracy: true, timeout: 5000 }
+        { enableHighAccuracy: true, timeout: 5000 },
       );
     }
   }, []);
@@ -177,14 +194,28 @@ export default function CustomerDashboard() {
   const [walletAmountInput, setWalletAmountInput] = React.useState('');
   const [walletTransactions, setWalletTransactions] = React.useState([
     { id: '1', type: 'CREDIT', amount: 500, desc: 'Top-up via UPI', date: 'Today, 10:30 AM' },
-    { id: '2', type: 'DEBIT', amount: 465, desc: 'Order at The Saffron Hub', date: 'Yesterday, 8:15 PM' },
-    { id: '3', type: 'CREDIT', amount: 1000, desc: 'Sign-up Promotional Credit', date: '01 July, 2:00 PM' },
+    {
+      id: '2',
+      type: 'DEBIT',
+      amount: 465,
+      desc: 'Order at The Saffron Hub',
+      date: 'Yesterday, 8:15 PM',
+    },
+    {
+      id: '3',
+      type: 'CREDIT',
+      amount: 1000,
+      desc: 'Sign-up Promotional Credit',
+      date: '01 July, 2:00 PM',
+    },
   ]);
 
   // Payment integration states
   const [showPaymentModal, setShowPaymentModal] = React.useState(false);
   const [checkoutOrderId, setCheckoutOrderId] = React.useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = React.useState<'STRIPE' | 'RAZORPAY' | 'COD' | 'WALLET'>('WALLET');
+  const [paymentMethod, setPaymentMethod] = React.useState<
+    'STRIPE' | 'RAZORPAY' | 'COD' | 'WALLET'
+  >('WALLET');
   const [paymentHistory, setPaymentHistory] = React.useState<any[]>([]);
   const [invoiceHtml, setInvoiceHtml] = React.useState<string | null>(null);
   const [invoiceOrderId, setInvoiceOrderId] = React.useState<string | null>(null);
@@ -247,7 +278,8 @@ export default function CustomerDashboard() {
     if (typeof window === 'undefined') return;
     setVoiceError(null);
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setVoiceError('Speech Recognition is not supported by your browser.');
       return;
@@ -288,7 +320,7 @@ export default function CustomerDashboard() {
             ? 'सुरक्षित चेकआउट खोला जा रहा है'
             : voiceLang === 'es-ES'
               ? 'Abriendo el pago seguro'
-              : 'Opening secure checkout window'
+              : 'Opening secure checkout window',
         );
         handleCheckoutTrigger();
         return;
@@ -307,7 +339,7 @@ export default function CustomerDashboard() {
             ? 'आपका कार्ट खाली कर दिया गया है'
             : voiceLang === 'es-ES'
               ? 'Carrito limpiado'
-              : 'Cleared your cart items'
+              : 'Cleared your cart items',
         );
         return;
       }
@@ -324,7 +356,13 @@ export default function CustomerDashboard() {
 
       if (matchedKeyword) {
         const allDishesList = [
-          { id: 'dish-1', name: 'Special Saffron Chicken Biryani', price: 320, isVeg: false, calories: 680 },
+          {
+            id: 'dish-1',
+            name: 'Special Saffron Chicken Biryani',
+            price: 320,
+            isVeg: false,
+            calories: 680,
+          },
           { id: 'dish-2', name: 'Paneer Tikka Roll', price: 180, isVeg: true, calories: 420 },
         ];
 
@@ -341,13 +379,18 @@ export default function CustomerDashboard() {
                 price: foundDish.price,
                 image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=400',
                 dietaryTags: foundDish.isVeg ? ['Veg' as any] : ['Non-Veg' as any],
-                nutritionalInfo: { calories: foundDish.calories, protein: 0, carbohydrates: 0, fats: 0 },
+                nutritionalInfo: {
+                  calories: foundDish.calories,
+                  protein: 0,
+                  carbohydrates: 0,
+                  fats: 0,
+                },
                 isAvailable: true,
                 isCustomizable: false,
               },
               quantity: 1,
               customizationNotes: `Voice Command Match: "${transcript}"`,
-            })
+            }),
           );
 
           speakConfirmation(
@@ -355,7 +398,7 @@ export default function CustomerDashboard() {
               ? `${foundDish.name} को कार्ट में जोड़ दिया गया है`
               : voiceLang === 'es-ES'
                 ? `Añadido ${foundDish.name} al carrito`
-                : `Added ${foundDish.name} to your cart`
+                : `Added ${foundDish.name} to your cart`,
           );
         } else {
           speakConfirmation(
@@ -363,7 +406,7 @@ export default function CustomerDashboard() {
               ? 'मुझे वह भोजन नहीं मिला'
               : voiceLang === 'es-ES'
                 ? 'No encontré ese plato'
-                : 'I could not find matching food items'
+                : 'I could not find matching food items',
           );
         }
       } else {
@@ -372,7 +415,7 @@ export default function CustomerDashboard() {
             ? 'आदेश समझ में नहीं आया'
             : voiceLang === 'es-ES'
               ? 'Comando no reconocido'
-              : 'Command not recognized. Try saying add chicken biryani.'
+              : 'Command not recognized. Try saying add chicken biryani.',
         );
       }
     };
@@ -408,9 +451,13 @@ export default function CustomerDashboard() {
 
   // Dynamic Promotion Simulation State
   const [simDemand, setSimDemand] = React.useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
-  const [simWeather, setSimWeather] = React.useState<'SUNNY' | 'RAINY' | 'COLD' | 'HOT' | 'WINDY'>('SUNNY');
+  const [simWeather, setSimWeather] = React.useState<'SUNNY' | 'RAINY' | 'COLD' | 'HOT' | 'WINDY'>(
+    'SUNNY',
+  );
   const [simTraffic, setSimTraffic] = React.useState<'LOW' | 'MEDIUM' | 'HEAVY'>('LOW');
-  const [simFestival, setSimFestival] = React.useState<'NONE' | 'DIWALI' | 'HOLI' | 'CHRISTMAS' | 'EID' | 'NEW_YEAR'>('NONE');
+  const [simFestival, setSimFestival] = React.useState<
+    'NONE' | 'DIWALI' | 'HOLI' | 'CHRISTMAS' | 'EID' | 'NEW_YEAR'
+  >('NONE');
   const [simDistance, setSimDistance] = React.useState<number>(2.5);
   const [recommendedPromos, setRecommendedPromos] = React.useState<any[]>([]);
   const [promosLoading, setPromosLoading] = React.useState(false);
@@ -635,7 +682,9 @@ export default function CustomerDashboard() {
         const data = await res.json();
         setLoyaltyProfile(data);
         setWalletBalance(data.walletBalance);
-        setLoyaltySuccess(`Simulated order checkout. Earned ${Math.round(data.points - loyaltyProfile.points)} points and cashback!`);
+        setLoyaltySuccess(
+          `Simulated order checkout. Earned ${Math.round(data.points - loyaltyProfile.points)} points and cashback!`,
+        );
         setTimeout(() => setLoyaltySuccess(null), 4000);
       }
     } catch (err) {
@@ -657,7 +706,9 @@ export default function CustomerDashboard() {
     if (!appliedPromoCoupon) return 0;
     if (appliedPromoCoupon.discountType === 'PERCENTAGE') {
       const calculated = (cartSubtotal * appliedPromoCoupon.discountValue) / 100;
-      return appliedPromoCoupon.maxDiscount ? Math.min(calculated, appliedPromoCoupon.maxDiscount) : calculated;
+      return appliedPromoCoupon.maxDiscount
+        ? Math.min(calculated, appliedPromoCoupon.maxDiscount)
+        : calculated;
     }
     return appliedPromoCoupon.discountValue;
   }, [appliedPromoCoupon, cartSubtotal]);
@@ -761,26 +812,29 @@ export default function CustomerDashboard() {
     socket.on('orderStatusUpdate', (data: { orderId: string; status: string; eta: string }) => {
       if (data.orderId === trackingOrder.id) {
         const statusMap: Record<string, number> = {
-          'PLACED': 0,
-          'PENDING': 0,
-          'ACCEPTED': 1,
-          'COOKING': 1,
-          'PREPARING': 1,
-          'READY': 2,
-          'PICKED_UP': 3,
-          'DELIVERED': 4,
-          'CANCELLED': 5,
+          PLACED: 0,
+          PENDING: 0,
+          ACCEPTED: 1,
+          COOKING: 1,
+          PREPARING: 1,
+          READY: 2,
+          PICKED_UP: 3,
+          DELIVERED: 4,
+          CANCELLED: 5,
         };
         const step = statusMap[data.status] ?? 0;
         setTrackingStep(step);
       }
     });
 
-    socket.on('driverLocationUpdate', (coords: { orderId: string; latitude: number; longitude: number }) => {
-      if (coords.orderId === trackingOrder.id) {
-        setDriverCoords({ lat: coords.latitude, lng: coords.longitude });
-      }
-    });
+    socket.on(
+      'driverLocationUpdate',
+      (coords: { orderId: string; latitude: number; longitude: number }) => {
+        if (coords.orderId === trackingOrder.id) {
+          setDriverCoords({ lat: coords.latitude, lng: coords.longitude });
+        }
+      },
+    );
 
     return () => {
       socket.off('orderStatusUpdate');
@@ -976,7 +1030,7 @@ export default function CustomerDashboard() {
         const data = await res.json();
         setSearchResults(data);
       } else {
-        setSearchResults(restaurants.filter(r => r.name.toLowerCase().includes(q.toLowerCase())));
+        setSearchResults(restaurants.filter((r) => r.name.toLowerCase().includes(q.toLowerCase())));
       }
     } catch {
       setSearchResults(restaurants);
@@ -1306,7 +1360,10 @@ export default function CustomerDashboard() {
         simulateStreamingText(data.message, data.recommendations);
       }
     } catch (err) {
-      setAiMessages((prev) => [...prev, { sender: 'assistant', text: 'Error connecting to AI engine.' }]);
+      setAiMessages((prev) => [
+        ...prev,
+        { sender: 'assistant', text: 'Error connecting to AI engine.' },
+      ]);
       setAiLoading(false);
     }
   };
@@ -1369,7 +1426,8 @@ export default function CustomerDashboard() {
           name: dish.name,
           description: dish.description || '',
           price: dish.price,
-          image: dish.image || 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=400',
+          image:
+            dish.image || 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=400',
           dietaryTags: dish.isVeg ? ['Veg' as any] : ['Non-Veg' as any],
           nutritionalInfo: {
             calories: dish.calories || 0,
@@ -1420,7 +1478,10 @@ export default function CustomerDashboard() {
       {/* Sidebar Navigation for Desktop */}
       <aside className="fixed left-0 top-0 bottom-0 w-20 bg-dark-surface border-r border-dark-border hidden md:flex flex-col items-center py-6 justify-between z-40">
         <div className="flex flex-col items-center gap-8">
-          <div className="bg-brand-saffron text-white p-3 rounded-xl shadow-lg shadow-brand-saffron/20 cursor-pointer" onClick={() => setActiveTab('home')}>
+          <div
+            className="bg-brand-saffron text-white p-3 rounded-xl shadow-lg shadow-brand-saffron/20 cursor-pointer"
+            onClick={() => setActiveTab('home')}
+          >
             <Sparkles className="w-6 h-6" />
           </div>
           <nav className="flex flex-col gap-6">
@@ -1469,13 +1530,20 @@ export default function CustomerDashboard() {
       {/* Top Header */}
       <header className="bg-dark-surface/30 backdrop-blur-md sticky top-0 border-b border-dark-border py-4 px-6 flex justify-between items-center z-30">
         <div className="flex items-center gap-3">
-          <div className="bg-brand-saffron text-white p-2 rounded-xl cursor-pointer" onClick={() => setActiveTab('home')}>
+          <div
+            className="bg-brand-saffron text-white p-2 rounded-xl cursor-pointer"
+            onClick={() => setActiveTab('home')}
+          >
             <Sparkles className="w-5 h-5" />
           </div>
-          <span className="text-sm font-black tracking-wider uppercase text-brand-saffron select-none">SwiggyZone</span>
+          <span className="text-sm font-black tracking-wider uppercase text-brand-saffron select-none">
+            SwiggyZone
+          </span>
           <span className="text-dark-border select-none">|</span>
           <div className="flex flex-col">
-            <span className="text-[10px] text-dark-muted uppercase font-bold tracking-wider">Delivery Location</span>
+            <span className="text-[10px] text-dark-muted uppercase font-bold tracking-wider">
+              Delivery Location
+            </span>
             <div className="flex items-center gap-1.5 text-xs font-semibold">
               <MapPin className="w-3.5 h-3.5 text-brand-saffron" />
               <span>{locationName}</span>
@@ -1495,30 +1563,43 @@ export default function CustomerDashboard() {
                 className="p-2 border border-dark-border rounded-xl text-dark-muted hover:text-dark-text relative"
               >
                 <Bell className="w-4 h-4" />
-                {notifications.some((n) => !n.isRead) && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-brand-saffron rounded-full ring-2 ring-dark-surface" />}
+                {notifications.some((n) => !n.isRead) && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-brand-saffron rounded-full ring-2 ring-dark-surface" />
+                )}
               </button>
 
               {showNotifications && (
                 <div className="absolute right-0 mt-3 w-80 bg-dark-surface border border-dark-border rounded-2xl shadow-2xl p-4 space-y-3 z-50 animate-fadeIn max-h-96 overflow-y-auto">
                   <div className="flex justify-between items-center border-b border-dark-border pb-2">
                     <span className="text-xs font-bold text-dark-text">Recent Alerts</span>
-                    <button className="text-[10px] text-brand-saffron hover:underline" onClick={() => setShowNotifications(false)}>
+                    <button
+                      className="text-[10px] text-brand-saffron hover:underline"
+                      onClick={() => setShowNotifications(false)}
+                    >
                       Dismiss
                     </button>
                   </div>
                   {notifications.length > 0 ? (
                     <div className="space-y-3.5 divide-y divide-dark-border/40">
                       {notifications.map((n) => (
-                        <div key={n.id} className="pt-2 text-xs flex justify-between items-start gap-2">
+                        <div
+                          key={n.id}
+                          className="pt-2 text-xs flex justify-between items-start gap-2"
+                        >
                           <div className="space-y-0.5">
                             <div className="font-bold text-dark-text flex items-center gap-1">
-                              {!n.isRead && <span className="w-1.5 h-1.5 bg-brand-saffron rounded-full shrink-0" />}
+                              {!n.isRead && (
+                                <span className="w-1.5 h-1.5 bg-brand-saffron rounded-full shrink-0" />
+                              )}
                               {n.title}
                             </div>
                             <div className="text-[11px] text-dark-muted">{n.content}</div>
                           </div>
                           {!n.isRead && (
-                            <button onClick={() => handleMarkNotificationRead(n.id)} className="text-[9px] text-brand-saffron font-bold hover:underline">
+                            <button
+                              onClick={() => handleMarkNotificationRead(n.id)}
+                              className="text-[9px] text-brand-saffron font-bold hover:underline"
+                            >
                               Read
                             </button>
                           )}
@@ -1526,7 +1607,9 @@ export default function CustomerDashboard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-[10px] text-dark-muted">No notifications yet</div>
+                    <div className="text-center py-6 text-[10px] text-dark-muted">
+                      No notifications yet
+                    </div>
                   )}
                 </div>
               )}
@@ -1534,7 +1617,10 @@ export default function CustomerDashboard() {
           )}
 
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-2 bg-dark-surface/50 border border-dark-border py-1.5 px-3 rounded-xl cursor-pointer" onClick={() => setActiveTab('settings')}>
+            <div
+              className="flex items-center gap-2 bg-dark-surface/50 border border-dark-border py-1.5 px-3 rounded-xl cursor-pointer"
+              onClick={() => setActiveTab('settings')}
+            >
               <div className="w-6 h-6 bg-brand-saffron/10 text-brand-saffron rounded-full flex items-center justify-center font-bold text-xs">
                 {user.firstName[0]}
               </div>
@@ -1555,10 +1641,15 @@ export default function CustomerDashboard() {
           <div className="space-y-8 animate-fadeIn">
             <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-brand-saffron/20 to-brand-orange/5 border border-brand-saffron/10 p-6 md:p-10 flex flex-col justify-center min-h-[180px]">
               <div className="space-y-3 max-w-md">
-                <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Welcome to SwiggyZone</span>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Free Deliveries and Smart AI Customizations.</h2>
+                <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
+                  Welcome to SwiggyZone
+                </span>
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                  Free Deliveries and Smart AI Customizations.
+                </h2>
                 <p className="text-xs text-dark-muted">
-                  Use coupon code <strong className="text-brand-saffron">FREEDEL</strong> to cover delivery fees on orders above ₹200.
+                  Use coupon code <strong className="text-brand-saffron">FREEDEL</strong> to cover
+                  delivery fees on orders above ₹200.
                 </p>
               </div>
             </div>
@@ -1572,7 +1663,9 @@ export default function CustomerDashboard() {
                       <Sparkles className="w-4 h-4 text-brand-saffron animate-pulse" />
                       Smart AI Recommendations
                     </h3>
-                    <p className="text-[10px] text-dark-muted">Dishes personalized for your history, current time, and weather.</p>
+                    <p className="text-[10px] text-dark-muted">
+                      Dishes personalized for your history, current time, and weather.
+                    </p>
                   </div>
                   <div className="flex gap-1.5 bg-dark-surface p-1 rounded-xl border border-dark-border">
                     {(['SUNNY', 'RAINY', 'COLD'] as const).map((wt) => (
@@ -1596,7 +1689,10 @@ export default function CustomerDashboard() {
                 {recommendationsLoading ? (
                   <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="min-w-[200px] h-28 bg-dark-surface/50 border border-dark-border/40 rounded-2xl animate-pulse" />
+                      <div
+                        key={i}
+                        className="min-w-[200px] h-28 bg-dark-surface/50 border border-dark-border/40 rounded-2xl animate-pulse"
+                      />
                     ))}
                   </div>
                 ) : recommendations.length > 0 ? (
@@ -1611,14 +1707,22 @@ export default function CustomerDashboard() {
                             <span className="bg-brand-saffron/10 text-brand-saffron text-[9px] font-bold px-1.5 py-0.5 rounded">
                               Score: {item.score}
                             </span>
-                            <span className="text-[9px] text-dark-muted font-semibold">{item.distanceKm} km</span>
+                            <span className="text-[9px] text-dark-muted font-semibold">
+                              {item.distanceKm} km
+                            </span>
                           </div>
                           <h4 className="font-extrabold text-dark-text truncate">{item.name}</h4>
-                          <div className="text-[10px] text-dark-muted truncate">Store: {item.restaurantName}</div>
+                          <div className="text-[10px] text-dark-muted truncate">
+                            Store: {item.restaurantName}
+                          </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-brand-saffron">₹{item.price}</span>
-                          <Button size="sm" className="text-[9px] px-2 py-0.5 h-6" onClick={() => handleAddRecommendedDish(item)}>
+                          <Button
+                            size="sm"
+                            className="text-[9px] px-2 py-0.5 h-6"
+                            onClick={() => handleAddRecommendedDish(item)}
+                          >
                             Add +
                           </Button>
                         </div>
@@ -1634,14 +1738,31 @@ export default function CustomerDashboard() {
             )}
 
             <div className="space-y-3">
-              <h3 className="font-bold text-sm text-dark-muted uppercase tracking-wider">What&apos;s on your mind?</h3>
+              <h3 className="font-bold text-sm text-dark-muted uppercase tracking-wider">
+                What&apos;s on your mind?
+              </h3>
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
                 {[
-                  { name: 'Biryani', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=150' },
-                  { name: 'Burger', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=150' },
-                  { name: 'Pizza', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=150' },
-                  { name: 'Healthy Salad', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=150' },
-                  { name: 'Desserts', img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=150' },
+                  {
+                    name: 'Biryani',
+                    img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=150',
+                  },
+                  {
+                    name: 'Burger',
+                    img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=150',
+                  },
+                  {
+                    name: 'Pizza',
+                    img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=150',
+                  },
+                  {
+                    name: 'Healthy Salad',
+                    img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=150',
+                  },
+                  {
+                    name: 'Desserts',
+                    img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=150',
+                  },
                 ].map((c) => (
                   <button
                     key={c.name}
@@ -1653,9 +1774,15 @@ export default function CustomerDashboard() {
                     className="flex flex-col items-center gap-2 min-w-[70px] group"
                   >
                     <div className="w-14 h-14 rounded-full overflow-hidden border border-dark-border group-hover:border-brand-saffron transition-all duration-300">
-                      <img src={c.img} alt={c.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                      <img
+                        src={c.img}
+                        alt={c.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
                     </div>
-                    <span className="text-[10px] font-semibold text-dark-muted group-hover:text-dark-text transition-colors">{c.name}</span>
+                    <span className="text-[10px] font-semibold text-dark-muted group-hover:text-dark-text transition-colors">
+                      {c.name}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -1666,7 +1793,10 @@ export default function CustomerDashboard() {
               {restaurantsLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {[1, 2].map((i) => (
-                    <div key={i} className="bg-dark-surface border border-dark-border h-48 rounded-2xl animate-pulse" />
+                    <div
+                      key={i}
+                      className="bg-dark-surface border border-dark-border h-48 rounded-2xl animate-pulse"
+                    />
                   ))}
                 </div>
               ) : (
@@ -1678,12 +1808,18 @@ export default function CustomerDashboard() {
                       onClick={() => handleOpenRestaurant(rest)}
                     >
                       <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden bg-dark-bg shrink-0">
-                        <img src={rest.coverImage} alt={rest.name} className="w-full h-full object-cover" />
+                        <img
+                          src={rest.coverImage}
+                          alt={rest.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="flex-1 space-y-2 text-center sm:text-left">
                         <div className="flex justify-between items-start flex-col sm:flex-row">
                           <h4 className="font-extrabold text-base">{rest.name}</h4>
-                          <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 sm:mt-0">★ {rest.rating}</span>
+                          <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 sm:mt-0">
+                            ★ {rest.rating}
+                          </span>
                         </div>
                         <p className="text-xs text-dark-muted line-clamp-1">{rest.description}</p>
                         <div className="flex gap-4 text-xs font-semibold text-dark-muted justify-center sm:justify-start">
@@ -1712,13 +1848,19 @@ export default function CustomerDashboard() {
 
             <div className="relative rounded-3xl overflow-hidden p-6 md:p-8 bg-dark-surface border border-dark-border flex flex-col md:flex-row gap-6 items-center">
               <div className="w-full md:w-48 h-32 rounded-xl overflow-hidden shrink-0">
-                <img src={selectedRestDetails.coverImage} alt={selectedRestDetails.name} className="w-full h-full object-cover" />
+                <img
+                  src={selectedRestDetails.coverImage}
+                  alt={selectedRestDetails.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="space-y-2 text-center md:text-left flex-1">
                 <h2 className="text-2xl font-extrabold">{selectedRestDetails.name}</h2>
                 <p className="text-xs text-dark-muted">{selectedRestDetails.description}</p>
                 <div className="flex items-center gap-6 justify-center md:justify-start text-xs font-bold text-dark-text mt-3">
-                  <span className="bg-brand-saffron/10 text-brand-saffron px-2 py-1 rounded-md">★ {selectedRestDetails.rating}</span>
+                  <span className="bg-brand-saffron/10 text-brand-saffron px-2 py-1 rounded-md">
+                    ★ {selectedRestDetails.rating}
+                  </span>
                   <span>{selectedRestDetails.deliveryTimeMinutes} mins</span>
                   <span>₹{selectedRestDetails.costForTwo} for two</span>
                 </div>
@@ -1733,19 +1875,28 @@ export default function CustomerDashboard() {
             )}
 
             {!reviewsLoading && reviewsSummary && (
-              <Card glass className="p-5 border border-brand-saffron/20 space-y-5 rounded-3xl animate-fadeIn">
+              <Card
+                glass
+                className="p-5 border border-brand-saffron/20 space-y-5 rounded-3xl animate-fadeIn"
+              >
                 <div className="flex items-center gap-2 border-b border-dark-border/40 pb-3">
                   <Sparkles className="w-5 h-5 text-brand-saffron animate-pulse" />
                   <div>
-                    <h3 className="text-xs font-black text-dark-text uppercase tracking-wider">AI Reviews Summary & Sentiment Insights</h3>
-                    <p className="text-[10px] text-dark-muted">Aggregated from {reviewsSummary.totalReviews} reviews</p>
+                    <h3 className="text-xs font-black text-dark-text uppercase tracking-wider">
+                      AI Reviews Summary & Sentiment Insights
+                    </h3>
+                    <p className="text-[10px] text-dark-muted">
+                      Aggregated from {reviewsSummary.totalReviews} reviews
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Sentiments progress bars */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Customer Sentiment Distribution</h4>
+                    <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Customer Sentiment Distribution
+                    </h4>
                     <div className="space-y-2">
                       <div className="space-y-1">
                         <div className="flex justify-between text-[10px] font-bold">
@@ -1753,7 +1904,10 @@ export default function CustomerDashboard() {
                           <span>{reviewsSummary.sentiments.positive}%</span>
                         </div>
                         <div className="w-full bg-dark-bg h-2 rounded-full overflow-hidden">
-                          <div className="bg-green-500 h-full rounded-full" style={{ width: `${reviewsSummary.sentiments.positive}%` }} />
+                          <div
+                            className="bg-green-500 h-full rounded-full"
+                            style={{ width: `${reviewsSummary.sentiments.positive}%` }}
+                          />
                         </div>
                       </div>
 
@@ -1763,7 +1917,10 @@ export default function CustomerDashboard() {
                           <span>{reviewsSummary.sentiments.neutral}%</span>
                         </div>
                         <div className="w-full bg-dark-bg h-2 rounded-full overflow-hidden">
-                          <div className="bg-yellow-500 h-full rounded-full" style={{ width: `${reviewsSummary.sentiments.neutral}%` }} />
+                          <div
+                            className="bg-yellow-500 h-full rounded-full"
+                            style={{ width: `${reviewsSummary.sentiments.neutral}%` }}
+                          />
                         </div>
                       </div>
 
@@ -1773,7 +1930,10 @@ export default function CustomerDashboard() {
                           <span>{reviewsSummary.sentiments.negative}%</span>
                         </div>
                         <div className="w-full bg-dark-bg h-2 rounded-full overflow-hidden">
-                          <div className="bg-red-500 h-full rounded-full" style={{ width: `${reviewsSummary.sentiments.negative}%` }} />
+                          <div
+                            className="bg-red-500 h-full rounded-full"
+                            style={{ width: `${reviewsSummary.sentiments.negative}%` }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1781,7 +1941,9 @@ export default function CustomerDashboard() {
 
                   {/* Topic Scores */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Feature Rating Scores</h4>
+                    <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Feature Rating Scores
+                    </h4>
                     <div className="grid grid-cols-2 gap-3 text-[10px] font-bold">
                       <div className="bg-dark-bg/60 p-2.5 rounded-xl border border-dark-border/40 flex justify-between items-center">
                         <span className="text-dark-muted">👅 Taste</span>
@@ -1789,11 +1951,15 @@ export default function CustomerDashboard() {
                       </div>
                       <div className="bg-dark-bg/60 p-2.5 rounded-xl border border-dark-border/40 flex justify-between items-center">
                         <span className="text-dark-muted">📦 Packaging</span>
-                        <span className="text-brand-saffron">{reviewsSummary.topics.packaging}/10</span>
+                        <span className="text-brand-saffron">
+                          {reviewsSummary.topics.packaging}/10
+                        </span>
                       </div>
                       <div className="bg-dark-bg/60 p-2.5 rounded-xl border border-dark-border/40 flex justify-between items-center">
                         <span className="text-dark-muted">🚴 Delivery</span>
-                        <span className="text-brand-saffron">{reviewsSummary.topics.delivery}/10</span>
+                        <span className="text-brand-saffron">
+                          {reviewsSummary.topics.delivery}/10
+                        </span>
                       </div>
                       <div className="bg-dark-bg/60 p-2.5 rounded-xl border border-dark-border/40 flex justify-between items-center">
                         <span className="text-dark-muted">💵 Price</span>
@@ -1805,7 +1971,9 @@ export default function CustomerDashboard() {
 
                 {/* AI generated Insights list */}
                 <div className="space-y-2 border-t border-dark-border/40 pt-4">
-                  <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Key Takeaways & AI Recommendations</h4>
+                  <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                    Key Takeaways & AI Recommendations
+                  </h4>
                   <ul className="space-y-1.5 list-disc pl-4 text-[11px] text-dark-text leading-relaxed">
                     {reviewsSummary.insights.map((insight: string, idx: number) => (
                       <li key={idx}>{insight}</li>
@@ -1818,21 +1986,36 @@ export default function CustomerDashboard() {
             <div className="space-y-8 pt-4">
               {selectedRestDetails.menuCategories?.map((cat: any) => (
                 <div key={cat.id} className="space-y-4">
-                  <h3 className="text-lg font-extrabold border-b border-dark-border pb-2">{cat.name}</h3>
+                  <h3 className="text-lg font-extrabold border-b border-dark-border pb-2">
+                    {cat.name}
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {cat.items.map((dish: any) => (
-                      <Card key={dish.id} className="p-4 flex justify-between gap-4 bg-dark-surface/20 border-dark-border/40">
+                      <Card
+                        key={dish.id}
+                        className="p-4 flex justify-between gap-4 bg-dark-surface/20 border-dark-border/40"
+                      >
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <span className={`w-3.5 h-3.5 border rounded flex items-center justify-center shrink-0 ${dish.isVeg ? 'border-green-600' : 'border-red-600'}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                            <span
+                              className={`w-3.5 h-3.5 border rounded flex items-center justify-center shrink-0 ${dish.isVeg ? 'border-green-600' : 'border-red-600'}`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? 'bg-green-600' : 'bg-red-600'}`}
+                              />
                             </span>
-                            <span className="text-[10px] text-dark-muted font-semibold">{dish.calories} kcal</span>
+                            <span className="text-[10px] text-dark-muted font-semibold">
+                              {dish.calories} kcal
+                            </span>
                           </div>
                           <h4 className="font-bold text-sm">{dish.name}</h4>
-                          <div className="text-xs font-extrabold text-brand-saffron">₹{dish.price}</div>
-                          <p className="text-[11px] text-dark-muted line-clamp-2">{dish.description}</p>
-                          
+                          <div className="text-xs font-extrabold text-brand-saffron">
+                            ₹{dish.price}
+                          </div>
+                          <p className="text-[11px] text-dark-muted line-clamp-2">
+                            {dish.description}
+                          </p>
+
                           {/* Dynamic Nutrition Stats Grid */}
                           {(() => {
                             const nu = estimateNutritionAndDiet(dish);
@@ -1849,19 +2032,27 @@ export default function CustomerDashboard() {
                                 <div className="grid grid-cols-4 gap-1 text-[8px] font-extrabold text-dark-muted text-center max-w-[210px]">
                                   <div className="bg-dark-bg/60 p-1.5 rounded border border-dark-border/40">
                                     <div className="text-dark-text font-black">{nu.calories}</div>
-                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">Cal</div>
+                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">
+                                      Cal
+                                    </div>
                                   </div>
                                   <div className="bg-dark-bg/60 p-1.5 rounded border border-dark-border/40">
                                     <div className="text-dark-text font-black">{nu.protein}g</div>
-                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">Prot</div>
+                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">
+                                      Prot
+                                    </div>
                                   </div>
                                   <div className="bg-dark-bg/60 p-1.5 rounded border border-dark-border/40">
                                     <div className="text-dark-text font-black">{nu.carbs}g</div>
-                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">Carb</div>
+                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">
+                                      Carb
+                                    </div>
                                   </div>
                                   <div className="bg-dark-bg/60 p-1.5 rounded border border-dark-border/40">
                                     <div className="text-dark-text font-black">{nu.fats}g</div>
-                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">Fat</div>
+                                    <div className="text-[5px] uppercase tracking-wider text-dark-muted opacity-60">
+                                      Fat
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1870,9 +2061,17 @@ export default function CustomerDashboard() {
                         </div>
                         <div className="flex flex-col items-center shrink-0 gap-2">
                           <div className="w-20 h-20 rounded-xl overflow-hidden bg-dark-bg border border-dark-border">
-                            <img src={dish.image} alt={dish.name} className="w-full h-full object-cover" />
+                            <img
+                              src={dish.image}
+                              alt={dish.name}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
-                          <Button size="sm" className="w-full text-xs py-1" onClick={() => handleAddDishClick(dish)}>
+                          <Button
+                            size="sm"
+                            className="w-full text-xs py-1"
+                            onClick={() => handleAddDishClick(dish)}
+                          >
                             + Add Item
                           </Button>
                         </div>
@@ -1903,7 +2102,10 @@ export default function CustomerDashboard() {
                   className="w-full bg-dark-surface border border-dark-border rounded-xl py-3 pl-10 pr-12 text-xs focus:outline-none focus:border-brand-saffron"
                 />
                 <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-dark-muted" />
-                <label className="absolute right-3.5 top-2.5 p-1 text-dark-muted hover:text-brand-saffron transition-colors cursor-pointer" title="Search by Food Image">
+                <label
+                  className="absolute right-3.5 top-2.5 p-1 text-dark-muted hover:text-brand-saffron transition-colors cursor-pointer"
+                  title="Search by Food Image"
+                >
                   📸
                   <input
                     type="file"
@@ -1913,7 +2115,10 @@ export default function CustomerDashboard() {
                   />
                 </label>
               </div>
-              <Button className="flex items-center justify-center gap-1.5" onClick={() => triggerSearch()}>
+              <Button
+                className="flex items-center justify-center gap-1.5"
+                onClick={() => triggerSearch()}
+              >
                 <Search className="w-4 h-4" />
                 <span>Search</span>
               </Button>
@@ -1934,32 +2139,50 @@ export default function CustomerDashboard() {
                     <span className="text-[9px] font-bold text-brand-saffron uppercase bg-brand-saffron/10 px-2 py-0.5 rounded">
                       Confidence: {visionResults.confidence}%
                     </span>
-                    <h3 className="text-sm font-extrabold mt-1">Identified: <span className="text-brand-saffron">{visionResults.recognizedFood}</span></h3>
+                    <h3 className="text-sm font-extrabold mt-1">
+                      Identified:{' '}
+                      <span className="text-brand-saffron">{visionResults.recognizedFood}</span>
+                    </h3>
                   </div>
                   <div className="text-right">
                     <div className="text-[10px] text-dark-muted font-bold">Est. Market Price</div>
-                    <div className="text-xs font-black text-green-500">₹{visionResults.estimatedPrice?.toFixed(2)}</div>
+                    <div className="text-xs font-black text-green-500">
+                      ₹{visionResults.estimatedPrice?.toFixed(2)}
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Restaurants serving matching dish</h4>
+                  <h4 className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                    Restaurants serving matching dish
+                  </h4>
                   {visionResults.recommendations?.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {visionResults.recommendations.map((item: any) => (
-                        <div key={item.id} className="p-3 bg-dark-surface/50 border border-dark-border rounded-xl flex justify-between items-center text-xs gap-3">
+                        <div
+                          key={item.id}
+                          className="p-3 bg-dark-surface/50 border border-dark-border rounded-xl flex justify-between items-center text-xs gap-3"
+                        >
                           <div className="space-y-0.5">
-                            <div className="font-extrabold text-dark-text truncate max-w-[150px]">{item.restaurantName}</div>
+                            <div className="font-extrabold text-dark-text truncate max-w-[150px]">
+                              {item.restaurantName}
+                            </div>
                             <div className="text-[10px] text-dark-muted">Price: ₹{item.price}</div>
                           </div>
-                          <Button size="sm" className="text-[9px] px-2.5 py-0.5 h-6" onClick={() => handleAddRecommendedDish(item)}>
+                          <Button
+                            size="sm"
+                            className="text-[9px] px-2.5 py-0.5 h-6"
+                            onClick={() => handleAddRecommendedDish(item)}
+                          >
                             Order
                           </Button>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-[11px] text-dark-muted">No database outlets found serving this recognized dish.</div>
+                    <div className="text-[11px] text-dark-muted">
+                      No database outlets found serving this recognized dish.
+                    </div>
                   )}
                 </div>
               </Card>
@@ -1978,7 +2201,9 @@ export default function CustomerDashboard() {
                     className="w-full text-left py-3 px-4 hover:bg-dark-border/40 text-xs flex justify-between items-center"
                   >
                     <span>{s.name}</span>
-                    <span className="text-[10px] text-dark-muted bg-dark-bg px-2 py-0.5 rounded uppercase">{s.type}</span>
+                    <span className="text-[10px] text-dark-muted bg-dark-bg px-2 py-0.5 rounded uppercase">
+                      {s.type}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -2011,7 +2236,10 @@ export default function CustomerDashboard() {
             {searchLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1, 2].map((i) => (
-                  <div key={i} className="bg-dark-surface border border-dark-border h-48 rounded-2xl animate-pulse" />
+                  <div
+                    key={i}
+                    className="bg-dark-surface border border-dark-border h-48 rounded-2xl animate-pulse"
+                  />
                 ))}
               </div>
             ) : searchResults.length > 0 ? (
@@ -2023,12 +2251,18 @@ export default function CustomerDashboard() {
                     onClick={() => handleOpenRestaurant(rest)}
                   >
                     <div className="w-24 h-24 rounded-xl overflow-hidden bg-dark-bg shrink-0">
-                      <img src={rest.coverImage} alt={rest.name} className="w-full h-full object-cover" />
+                      <img
+                        src={rest.coverImage}
+                        alt={rest.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-start">
                         <h4 className="font-extrabold text-sm">{rest.name}</h4>
-                        <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-1.5 py-0.5 rounded">★ {rest.rating}</span>
+                        <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-1.5 py-0.5 rounded">
+                          ★ {rest.rating}
+                        </span>
                       </div>
                       <p className="text-[11px] text-dark-muted line-clamp-1">{rest.description}</p>
                       <div className="flex gap-3 text-[11px] text-dark-muted pt-2 font-medium">
@@ -2041,7 +2275,9 @@ export default function CustomerDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-xs text-dark-muted">No matching restaurants found.</div>
+              <div className="text-center py-12 text-xs text-dark-muted">
+                No matching restaurants found.
+              </div>
             )}
           </div>
         )}
@@ -2055,22 +2291,30 @@ export default function CustomerDashboard() {
                 Smart Promo & Coupon Recommender
               </h2>
               <p className="text-xs text-dark-muted">
-                Simulate environmental factors and real-time database conditions to view and apply dynamically calculated promotional codes.
+                Simulate environmental factors and real-time database conditions to view and apply
+                dynamically calculated promotional codes.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Panel: Simulator Inputs */}
               <div className="lg:col-span-1 space-y-6">
-                <Card glass className="p-5 border border-dark-border/40 space-y-5 bg-dark-surface/30">
+                <Card
+                  glass
+                  className="p-5 border border-dark-border/40 space-y-5 bg-dark-surface/30"
+                >
                   <div className="flex items-center gap-2 border-b border-dark-border pb-3">
                     <Sliders className="w-4 h-4 text-brand-saffron" />
-                    <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">Simulation parameters</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                      Simulation parameters
+                    </h3>
                   </div>
 
                   {/* Demand Input */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Demand Level</label>
+                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Demand Level
+                    </label>
                     <div className="grid grid-cols-3 gap-1 bg-dark-bg p-1 rounded-xl border border-dark-border">
                       {(['LOW', 'MEDIUM', 'HIGH'] as const).map((d) => (
                         <button
@@ -2093,7 +2337,9 @@ export default function CustomerDashboard() {
 
                   {/* Weather Input */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Weather Condition</label>
+                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Weather Condition
+                    </label>
                     <select
                       value={simWeather}
                       onChange={(e: any) => setSimWeather(e.target.value)}
@@ -2109,7 +2355,9 @@ export default function CustomerDashboard() {
 
                   {/* Traffic Input */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Traffic Congestion</label>
+                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Traffic Congestion
+                    </label>
                     <div className="grid grid-cols-3 gap-1 bg-dark-bg p-1 rounded-xl border border-dark-border">
                       {(['LOW', 'MEDIUM', 'HEAVY'] as const).map((t) => (
                         <button
@@ -2132,7 +2380,9 @@ export default function CustomerDashboard() {
 
                   {/* Festival Input */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Festival Season</label>
+                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Festival Season
+                    </label>
                     <select
                       value={simFestival}
                       onChange={(e: any) => setSimFestival(e.target.value)}
@@ -2151,7 +2401,9 @@ export default function CustomerDashboard() {
                   <div className="space-y-2.5">
                     <div className="flex justify-between text-[10px] font-bold text-dark-muted uppercase tracking-wider">
                       <span>Delivery Distance</span>
-                      <span className="text-brand-saffron font-black">{simDistance.toFixed(1)} km</span>
+                      <span className="text-brand-saffron font-black">
+                        {simDistance.toFixed(1)} km
+                      </span>
                     </div>
                     <input
                       type="range"
@@ -2171,10 +2423,20 @@ export default function CustomerDashboard() {
 
                 {/* Show Current Context Summary */}
                 <Card className="p-4 border border-dark-border/40 bg-dark-surface/20 text-[11px] space-y-2">
-                  <div className="font-extrabold text-dark-text uppercase tracking-wider text-[9px]">Simulation Status</div>
+                  <div className="font-extrabold text-dark-text uppercase tracking-wider text-[9px]">
+                    Simulation Status
+                  </div>
                   <div className="grid grid-cols-2 gap-2 text-dark-muted">
-                    <div>Address ID: <span className="font-mono text-dark-text">{userAddressId.slice(0, 8)}...</span></div>
-                    <div>Inventory Status: <span className="text-green-500 font-bold">Fetched (Live)</span></div>
+                    <div>
+                      Address ID:{' '}
+                      <span className="font-mono text-dark-text">
+                        {userAddressId.slice(0, 8)}...
+                      </span>
+                    </div>
+                    <div>
+                      Inventory Status:{' '}
+                      <span className="text-green-500 font-bold">Fetched (Live)</span>
+                    </div>
                   </div>
                 </Card>
               </div>
@@ -2184,7 +2446,10 @@ export default function CustomerDashboard() {
                 {promosLoading ? (
                   <div className="space-y-4">
                     {[1, 2].map((i) => (
-                      <div key={i} className="bg-dark-surface border border-dark-border h-36 rounded-2xl animate-pulse" />
+                      <div
+                        key={i}
+                        className="bg-dark-surface border border-dark-border h-36 rounded-2xl animate-pulse"
+                      />
                     ))}
                   </div>
                 ) : recommendedPromos.length > 0 ? (
@@ -2198,7 +2463,9 @@ export default function CustomerDashboard() {
                           key={promo.id}
                           glass
                           className={`p-5 border relative overflow-hidden transition-all duration-300 ${
-                            isApplied ? 'border-green-500/30 bg-green-500/5' : 'border-brand-saffron/10 hover:border-brand-saffron/20'
+                            isApplied
+                              ? 'border-green-500/30 bg-green-500/5'
+                              : 'border-brand-saffron/10 hover:border-brand-saffron/20'
                           }`}
                         >
                           {/* Top row */}
@@ -2214,7 +2481,9 @@ export default function CustomerDashboard() {
                                   {promo.badge}
                                 </span>
                               </div>
-                              <h3 className="text-base font-extrabold text-dark-text">{promo.title}</h3>
+                              <h3 className="text-base font-extrabold text-dark-text">
+                                {promo.title}
+                              </h3>
                               <p className="text-xs text-dark-muted">{promo.description}</p>
                             </div>
 
@@ -2240,10 +2509,16 @@ export default function CustomerDashboard() {
                           {hasItemsToOrder && (
                             <div className="mt-4 p-3 bg-dark-surface/50 border border-dark-border rounded-xl flex justify-between items-center gap-4 text-xs">
                               <div className="space-y-0.5">
-                                <div className="font-extrabold text-dark-text">{promo.discountedItemName}</div>
+                                <div className="font-extrabold text-dark-text">
+                                  {promo.discountedItemName}
+                                </div>
                                 <div className="text-[10px] text-dark-muted">
-                                  Original Price: <span className="line-through">₹{promo.discountedItemPrice}</span> •{' '}
-                                  <span className="text-green-500 font-bold">Deal Price: ₹{(promo.discountedItemPrice * 0.7).toFixed(0)}</span>
+                                  Original Price:{' '}
+                                  <span className="line-through">₹{promo.discountedItemPrice}</span>{' '}
+                                  •{' '}
+                                  <span className="text-green-500 font-bold">
+                                    Deal Price: ₹{(promo.discountedItemPrice * 0.7).toFixed(0)}
+                                  </span>
                                 </div>
                               </div>
                               <Button
@@ -2312,9 +2587,12 @@ export default function CustomerDashboard() {
                 ) : (
                   <div className="text-center py-16 border border-dashed border-dark-border rounded-3xl bg-dark-surface/5 flex flex-col items-center justify-center gap-2">
                     <Tag className="w-8 h-8 text-dark-muted opacity-50" />
-                    <span className="text-sm font-bold text-dark-text">No Promotions Recommended</span>
+                    <span className="text-sm font-bold text-dark-text">
+                      No Promotions Recommended
+                    </span>
                     <span className="text-xs text-dark-muted max-w-sm">
-                      Try varying your simulation inputs (e.g. set Weather to Rainy or select a Festival Season) to generate dynamic discounts.
+                      Try varying your simulation inputs (e.g. set Weather to Rainy or select a
+                      Festival Season) to generate dynamic discounts.
                     </span>
                   </div>
                 )}
@@ -2364,7 +2642,13 @@ export default function CustomerDashboard() {
                     ))}
                   </div>
                   <svg className="absolute w-full h-full" viewBox="0 0 500 200">
-                    <path d="M 50 100 Q 250 20 450 100" fill="none" stroke="#334155" strokeWidth="4" strokeDasharray="8" />
+                    <path
+                      d="M 50 100 Q 250 20 450 100"
+                      fill="none"
+                      stroke="#334155"
+                      strokeWidth="4"
+                      strokeDasharray="8"
+                    />
                     <path
                       d="M 50 100 Q 250 20 450 100"
                       fill="none"
@@ -2377,16 +2661,24 @@ export default function CustomerDashboard() {
                   </svg>
 
                   <div className="absolute left-[30px] top-[90px] flex flex-col items-center">
-                    <div className="w-6 h-6 bg-dark-surface border-2 border-dark-border rounded-full flex items-center justify-center">🏪</div>
-                    <span className="text-[9px] font-bold text-dark-muted mt-1 uppercase">Kitchen</span>
+                    <div className="w-6 h-6 bg-dark-surface border-2 border-dark-border rounded-full flex items-center justify-center">
+                      🏪
+                    </div>
+                    <span className="text-[9px] font-bold text-dark-muted mt-1 uppercase">
+                      Kitchen
+                    </span>
                   </div>
 
                   {trackingStep < 5 && (
                     <div
                       className="absolute w-8 h-8 bg-brand-saffron text-white rounded-full flex items-center justify-center shadow-lg shadow-brand-saffron/30 transition-all duration-1000"
                       style={{
-                        left: driverCoords ? `${50 + ((12.9723 - driverCoords.lat) / 0.0008) * 80 * 5}px` : `${50 + trackingStep * 80}px`,
-                        top: driverCoords ? `${100 - Math.sin(((12.9723 - driverCoords.lat) / 0.0008) * Math.PI) * 80}px` : `${100 - Math.sin((trackingStep * Math.PI) / 5) * 80}px`,
+                        left: driverCoords
+                          ? `${50 + ((12.9723 - driverCoords.lat) / 0.0008) * 80 * 5}px`
+                          : `${50 + trackingStep * 80}px`,
+                        top: driverCoords
+                          ? `${100 - Math.sin(((12.9723 - driverCoords.lat) / 0.0008) * Math.PI) * 80}px`
+                          : `${100 - Math.sin((trackingStep * Math.PI) / 5) * 80}px`,
                       }}
                     >
                       🏍️
@@ -2394,8 +2686,12 @@ export default function CustomerDashboard() {
                   )}
 
                   <div className="absolute right-[30px] top-[90px] flex flex-col items-center">
-                    <div className="w-6 h-6 bg-brand-saffron/10 border-2 border-brand-saffron rounded-full flex items-center justify-center">🏠</div>
-                    <span className="text-[9px] font-bold text-brand-saffron mt-1 uppercase">Home</span>
+                    <div className="w-6 h-6 bg-brand-saffron/10 border-2 border-brand-saffron rounded-full flex items-center justify-center">
+                      🏠
+                    </div>
+                    <span className="text-[9px] font-bold text-brand-saffron mt-1 uppercase">
+                      Home
+                    </span>
                   </div>
                 </div>
 
@@ -2406,7 +2702,9 @@ export default function CustomerDashboard() {
                       <Sparkles className="w-4 h-4 text-brand-saffron" />
                       AI Live ETA Confidence
                     </span>
-                    <span className="font-semibold text-brand-saffron">{95 - trackingStep * 3}% Confidence</span>
+                    <span className="font-semibold text-brand-saffron">
+                      {95 - trackingStep * 3}% Confidence
+                    </span>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-center text-[10px] text-dark-muted">
                     <div className="bg-dark-surface p-2 rounded-lg border border-dark-border">
@@ -2428,7 +2726,10 @@ export default function CustomerDashboard() {
                   {[
                     { title: 'Pending / Placed', desc: 'Order submitted to restaurant' },
                     { title: 'Accepted & Cooking', desc: 'Chef preparing your Saffron delicacies' },
-                    { title: 'Ready for Pickup', desc: 'Rider is packaging items at merchant kitchen' },
+                    {
+                      title: 'Ready for Pickup',
+                      desc: 'Rider is packaging items at merchant kitchen',
+                    },
                     { title: 'Picked Up & En Route', desc: 'Delivery partner Amit is 1.2 km away' },
                     { title: 'Delivered', desc: 'Meal handed over at doorstep' },
                   ].map((s, idx) => (
@@ -2436,15 +2737,25 @@ export default function CustomerDashboard() {
                       <div className="flex flex-col items-center">
                         <div
                           className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${
-                            trackingStep >= idx ? 'bg-brand-saffron text-white' : 'bg-dark-border text-dark-muted'
+                            trackingStep >= idx
+                              ? 'bg-brand-saffron text-white'
+                              : 'bg-dark-border text-dark-muted'
                           }`}
                         >
                           {trackingStep >= idx ? '✓' : idx + 1}
                         </div>
-                        {idx < 4 && <div className={`w-0.5 h-8 ${trackingStep > idx ? 'bg-brand-saffron' : 'bg-dark-border'}`} />}
+                        {idx < 4 && (
+                          <div
+                            className={`w-0.5 h-8 ${trackingStep > idx ? 'bg-brand-saffron' : 'bg-dark-border'}`}
+                          />
+                        )}
                       </div>
                       <div className="space-y-0.5">
-                        <div className={`font-bold ${trackingStep >= idx ? 'text-dark-text' : 'text-dark-muted'}`}>{s.title}</div>
+                        <div
+                          className={`font-bold ${trackingStep >= idx ? 'text-dark-text' : 'text-dark-muted'}`}
+                        >
+                          {s.title}
+                        </div>
                         <div className="text-[11px] text-dark-muted">{s.desc}</div>
                       </div>
                     </div>
@@ -2464,7 +2775,9 @@ export default function CustomerDashboard() {
           <div className="space-y-8 animate-fadeIn">
             <div className="flex justify-between items-center flex-wrap gap-4">
               <h2 className="text-xl font-bold">Wallet & Loyalty Program</h2>
-              <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-black uppercase px-2 py-0.5 rounded">VIP Privilege Club</span>
+              <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                VIP Privilege Club
+              </span>
             </div>
 
             {loyaltySuccess && (
@@ -2486,12 +2799,20 @@ export default function CustomerDashboard() {
                 <Card className="p-6 border border-dark-border/40 bg-gradient-to-br from-dark-surface to-dark-surface/50 space-y-4">
                   <div className="flex justify-between items-center border-b border-dark-border pb-3">
                     <div>
-                      <span className="text-[9px] text-dark-muted font-bold uppercase tracking-wider">VIP Tier Status</span>
-                      <h3 className="text-lg font-black text-white">{loyaltyProfile?.tier || 'BRONZE'} MEMBER</h3>
+                      <span className="text-[9px] text-dark-muted font-bold uppercase tracking-wider">
+                        VIP Tier Status
+                      </span>
+                      <h3 className="text-lg font-black text-white">
+                        {loyaltyProfile?.tier || 'BRONZE'} MEMBER
+                      </h3>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] text-dark-muted font-bold uppercase tracking-wider">Balance</span>
-                      <h3 className="text-lg font-black text-brand-saffron">{loyaltyProfile?.points || 0} Pts</h3>
+                      <span className="text-[9px] text-dark-muted font-bold uppercase tracking-wider">
+                        Balance
+                      </span>
+                      <h3 className="text-lg font-black text-brand-saffron">
+                        {loyaltyProfile?.points || 0} Pts
+                      </h3>
                     </div>
                   </div>
 
@@ -2509,20 +2830,39 @@ export default function CustomerDashboard() {
                         />
                       </div>
                       <p className="text-[9.5px] text-dark-muted leading-relaxed">
-                        Earn {loyaltyProfile?.nextTierThreshold - (loyaltyProfile?.points || 0)} more points to level up.
+                        Earn {loyaltyProfile?.nextTierThreshold - (loyaltyProfile?.points || 0)}{' '}
+                        more points to level up.
                       </p>
                     </div>
                   ) : (
-                    <div className="text-[10px] text-green-500 font-extrabold">🏆 Max Platinum Tier Reached!</div>
+                    <div className="text-[10px] text-green-500 font-extrabold">
+                      🏆 Max Platinum Tier Reached!
+                    </div>
                   )}
 
                   {/* Tier benefits */}
                   <div className="bg-dark-bg/60 p-3.5 rounded-xl border border-dark-border/40 text-[10px] space-y-2">
-                    <span className="font-extrabold uppercase text-[8.5px] text-dark-muted tracking-wider">Active Privilege Benefits</span>
+                    <span className="font-extrabold uppercase text-[8.5px] text-dark-muted tracking-wider">
+                      Active Privilege Benefits
+                    </span>
                     <div className="space-y-1.5 text-dark-text">
-                      <div>⚡ <strong>{Math.round((loyaltyProfile?.cashbackRate || 0) * 100)}% Cashback</strong> on all order checkouts</div>
-                      {loyaltyProfile?.points >= 300 && <div>🚚 <strong>Free Delivery privilege</strong> automatically applied</div>}
-                      {loyaltyProfile?.points >= 800 && <div>🌟 <strong>Priority VIP concierge route assignment</strong></div>}
+                      <div>
+                        ⚡{' '}
+                        <strong>
+                          {Math.round((loyaltyProfile?.cashbackRate || 0) * 100)}% Cashback
+                        </strong>{' '}
+                        on all order checkouts
+                      </div>
+                      {loyaltyProfile?.points >= 300 && (
+                        <div>
+                          🚚 <strong>Free Delivery privilege</strong> automatically applied
+                        </div>
+                      )}
+                      {loyaltyProfile?.points >= 800 && (
+                        <div>
+                          🌟 <strong>Priority VIP concierge route assignment</strong>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -2530,7 +2870,9 @@ export default function CustomerDashboard() {
                 {/* Database Wallet Funds Top-up */}
                 <Card glass className="p-5 border border-dark-border/40 space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Linked Balance</span>
+                    <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">
+                      Linked Balance
+                    </span>
                     <h3 className="text-xl font-black text-white">₹{walletBalance.toFixed(2)}</h3>
                   </div>
 
@@ -2560,7 +2902,9 @@ export default function CustomerDashboard() {
                   <Card glass className="p-5 border border-dark-border/40 space-y-4 h-fit">
                     <div className="flex items-center gap-2 border-b border-dark-border pb-3">
                       <Sparkles className="w-4 h-4 text-brand-saffron animate-pulse" />
-                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">Claimable Loyalty Rewards</h3>
+                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                        Claimable Loyalty Rewards
+                      </h3>
                     </div>
 
                     <div className="space-y-3">
@@ -2573,7 +2917,9 @@ export default function CustomerDashboard() {
                           >
                             <div className="space-y-0.5 flex-1 min-w-[140px]">
                               <div className="font-extrabold text-white">{reward.title}</div>
-                              <p className="text-[10px] text-dark-muted leading-relaxed">{reward.desc}</p>
+                              <p className="text-[10px] text-dark-muted leading-relaxed">
+                                {reward.desc}
+                              </p>
                             </div>
                             <Button
                               size="sm"
@@ -2594,22 +2940,29 @@ export default function CustomerDashboard() {
                   <Card glass className="p-5 border border-dark-border/40 space-y-4 h-fit">
                     <div className="flex items-center gap-2 border-b border-dark-border pb-3">
                       <UserIcon className="w-4 h-4 text-brand-saffron" />
-                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">Referral Invite Console</h3>
+                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                        Referral Invite Console
+                      </h3>
                     </div>
 
                     <div className="bg-dark-bg/80 p-3.5 rounded-xl border border-dark-border/40 text-xs space-y-1">
-                      <span className="text-[9px] text-dark-muted font-bold uppercase">Your Invite Code</span>
+                      <span className="text-[9px] text-dark-muted font-bold uppercase">
+                        Your Invite Code
+                      </span>
                       <div className="font-black text-sm text-brand-saffron tracking-wider select-all cursor-pointer">
                         {loyaltyProfile?.referrals?.code || 'FETCHING...'}
                       </div>
                       <p className="text-[9.5px] text-dark-muted pt-1">
-                        Invite friends to SwiggyZone. Earn ₹100 cash voucher credit once they sign up and place an order.
+                        Invite friends to SwiggyZone. Earn ₹100 cash voucher credit once they sign
+                        up and place an order.
                       </p>
                     </div>
 
                     <form onSubmit={handleRedeemReferral} className="space-y-3 pt-1">
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-dark-muted uppercase">Redeem Invitation Code</label>
+                        <label className="text-[9px] font-bold text-dark-muted uppercase">
+                          Redeem Invitation Code
+                        </label>
                         <input
                           type="text"
                           placeholder="REF-XXXX-XXX"
@@ -2631,10 +2984,13 @@ export default function CustomerDashboard() {
                   <Card glass className="p-5 border border-dark-border/40 space-y-4">
                     <div className="flex items-center gap-2 border-b border-dark-border pb-3">
                       <RotateCcw className="w-4 h-4 text-brand-saffron" />
-                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">Points & Cashback Simulator</h3>
+                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                        Points & Cashback Simulator
+                      </h3>
                     </div>
                     <p className="text-[11px] text-dark-muted leading-relaxed">
-                      Simulate placing a food order checkout to verify the automated Points and Cashback calculation logic.
+                      Simulate placing a food order checkout to verify the automated Points and
+                      Cashback calculation logic.
                     </p>
 
                     <div className="space-y-3 pt-1">
@@ -2648,33 +3004,52 @@ export default function CustomerDashboard() {
                           className="w-full bg-dark-bg border border-dark-border rounded-xl py-1.5 pl-7 pr-3 text-xs text-dark-text focus:outline-none focus:border-brand-saffron"
                         />
                       </div>
-                      <Button size="sm" className="w-full text-[11px] h-8" onClick={handleSimulatePointsCashback}>
+                      <Button
+                        size="sm"
+                        className="w-full text-[11px] h-8"
+                        onClick={handleSimulatePointsCashback}
+                      >
                         Checkout Simulated Order
                       </Button>
                     </div>
                   </Card>
 
                   {/* Audit Logs Transaction Ledger */}
-                  <Card glass className="p-5 border border-dark-border/40 space-y-3 h-[210px] flex flex-col justify-between">
+                  <Card
+                    glass
+                    className="p-5 border border-dark-border/40 space-y-3 h-[210px] flex flex-col justify-between"
+                  >
                     <div className="flex justify-between items-center border-b border-dark-border pb-2">
-                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">Audit Transaction History</h3>
+                      <h3 className="text-xs font-black uppercase tracking-wider text-dark-text">
+                        Audit Transaction History
+                      </h3>
                       <span className="text-[9px] text-dark-muted">Synced from database</span>
                     </div>
 
                     <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-none py-1">
                       {loyaltyProfile?.transactions?.map((tx: any) => (
-                        <div key={tx.id} className="flex justify-between items-center text-[10px] bg-dark-bg/60 p-2 border border-dark-border/40 rounded-lg">
+                        <div
+                          key={tx.id}
+                          className="flex justify-between items-center text-[10px] bg-dark-bg/60 p-2 border border-dark-border/40 rounded-lg"
+                        >
                           <div className="space-y-0.5">
                             <span className="text-white font-bold">{tx.description}</span>
-                            <div className="text-dark-muted text-[8.5px]">{new Date(tx.createdAt).toLocaleString()}</div>
+                            <div className="text-dark-muted text-[8.5px]">
+                              {new Date(tx.createdAt).toLocaleString()}
+                            </div>
                           </div>
-                          <span className={`font-black ${tx.type === 'CREDIT' ? 'text-green-500' : 'text-red-500'} whitespace-nowrap`}>
+                          <span
+                            className={`font-black ${tx.type === 'CREDIT' ? 'text-green-500' : 'text-red-500'} whitespace-nowrap`}
+                          >
                             {tx.type === 'CREDIT' ? '+' : '-'} ₹{tx.amount.toFixed(2)}
                           </span>
                         </div>
                       ))}
-                      {(!loyaltyProfile?.transactions || loyaltyProfile?.transactions.length === 0) && (
-                        <div className="text-[10px] text-dark-muted italic text-center py-8">No transaction history.</div>
+                      {(!loyaltyProfile?.transactions ||
+                        loyaltyProfile?.transactions.length === 0) && (
+                        <div className="text-[10px] text-dark-muted italic text-center py-8">
+                          No transaction history.
+                        </div>
                       )}
                     </div>
                   </Card>
@@ -2691,16 +3066,22 @@ export default function CustomerDashboard() {
 
             <Card glass className="p-6 border border-dark-border space-y-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-brand-saffron text-white rounded-full flex items-center justify-center font-bold text-lg">{user ? user.firstName[0] : 'G'}</div>
+                <div className="w-12 h-12 bg-brand-saffron text-white rounded-full flex items-center justify-center font-bold text-lg">
+                  {user ? user.firstName[0] : 'G'}
+                </div>
                 <div>
-                  <h3 className="font-bold text-base">{user ? `${user.firstName} ${user.lastName}` : 'Guest User'}</h3>
+                  <h3 className="font-bold text-base">
+                    {user ? `${user.firstName} ${user.lastName}` : 'Guest User'}
+                  </h3>
                   <p className="text-xs text-dark-muted">{user ? user.email : 'Not signed in'}</p>
                 </div>
               </div>
             </Card>
 
             <div className="space-y-3">
-              <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">Settings</h4>
+              <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">
+                Settings
+              </h4>
               <div className="bg-dark-surface border border-dark-border rounded-xl divide-y divide-dark-border overflow-hidden">
                 {user?.roleName === 'RESTAURANT_OWNER' && (
                   <button
@@ -2735,18 +3116,26 @@ export default function CustomerDashboard() {
                 <div className="py-4 px-5 flex justify-between items-center text-xs">
                   <div className="space-y-0.5">
                     <div className="font-bold">System Appearance</div>
-                    <div className="text-[10px] text-dark-muted">Manage system dark theme settings</div>
+                    <div className="text-[10px] text-dark-muted">
+                      Manage system dark theme settings
+                    </div>
                   </div>
-                  <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-2 py-1 rounded">DARK MODE ENABLED</span>
+                  <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-2 py-1 rounded">
+                    DARK MODE ENABLED
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* NOTIFICATION PREFERENCES CARD */}
             <div className="space-y-3">
-              <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">Notification preferences</h4>
+              <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">
+                Notification preferences
+              </h4>
               <Card glass className="p-5 border border-dark-border/40 space-y-4">
-                <p className="text-xs text-dark-muted">Configure your preferred delivery alert, update, and discount channels.</p>
+                <p className="text-xs text-dark-muted">
+                  Configure your preferred delivery alert, update, and discount channels.
+                </p>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                   {[
                     { key: 'push', label: '📳 Web Push' },
@@ -2775,10 +3164,14 @@ export default function CustomerDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Side: Simulator Controls */}
               <div className="lg:col-span-1 space-y-3">
-                <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">Alert Templates Simulator</h4>
+                <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">
+                  Alert Templates Simulator
+                </h4>
                 <Card glass className="p-5 border border-dark-border/40 space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Select Message Template</label>
+                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Select Message Template
+                    </label>
                     <select
                       value={selectedTemplate}
                       onChange={(e) => setSelectedTemplate(e.target.value)}
@@ -2792,7 +3185,9 @@ export default function CustomerDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Select Target Channels</label>
+                    <label className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Select Target Channels
+                    </label>
                     <div className="flex flex-wrap gap-1.5">
                       {[
                         { id: 'push', name: 'Push' },
@@ -2826,7 +3221,10 @@ export default function CustomerDashboard() {
                     </div>
                   </div>
 
-                  <Button className="w-full text-xs h-9 flex items-center justify-center gap-1.5" onClick={handleTriggerTestNotif}>
+                  <Button
+                    className="w-full text-xs h-9 flex items-center justify-center gap-1.5"
+                    onClick={handleTriggerTestNotif}
+                  >
                     <Sparkles className="w-4 h-4" /> Trigger Queue Blast
                   </Button>
                 </Card>
@@ -2834,7 +3232,9 @@ export default function CustomerDashboard() {
 
               {/* Right Side: Queue Logs Worker */}
               <div className="lg:col-span-2 space-y-3">
-                <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">Asynchronous Dispatch Queue Monitor</h4>
+                <h4 className="font-bold text-sm text-dark-muted uppercase tracking-wider">
+                  Asynchronous Dispatch Queue Monitor
+                </h4>
                 <Card className="p-4 border border-dark-border/40 bg-black/60 rounded-3xl space-y-4 font-mono">
                   {/* Console Logs */}
                   <div className="space-y-1.5 text-[10px] text-green-400 h-32 overflow-y-auto border-b border-dark-border pb-3 scrollbar-none">
@@ -2843,12 +3243,16 @@ export default function CustomerDashboard() {
                         {log}
                       </div>
                     ))}
-                    {queueLogs.length === 0 && <div className="text-dark-muted italic">No worker activity logged.</div>}
+                    {queueLogs.length === 0 && (
+                      <div className="text-dark-muted italic">No worker activity logged.</div>
+                    )}
                   </div>
 
                   {/* Enqueued Jobs List */}
                   <div className="space-y-2">
-                    <div className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">Active Queue Jobs</div>
+                    <div className="text-[10px] font-bold text-dark-muted uppercase tracking-wider">
+                      Active Queue Jobs
+                    </div>
                     <div className="h-28 overflow-y-auto space-y-1.5 scrollbar-none">
                       {queueJobs.map((job) => (
                         <div
@@ -2864,17 +3268,21 @@ export default function CustomerDashboard() {
                               job.status === 'COMPLETED'
                                 ? 'bg-green-600/10 text-green-500'
                                 : job.status === 'PROCESSING'
-                                ? 'bg-blue-600/10 text-blue-500'
-                                : job.status === 'FAILED'
-                                ? 'bg-red-600/10 text-red-500'
-                                : 'bg-dark-border text-dark-muted'
+                                  ? 'bg-blue-600/10 text-blue-500'
+                                  : job.status === 'FAILED'
+                                    ? 'bg-red-600/10 text-red-500'
+                                    : 'bg-dark-border text-dark-muted'
                             }`}
                           >
                             {job.status}
                           </span>
                         </div>
                       ))}
-                      {queueJobs.length === 0 && <div className="text-[10px] text-dark-muted italic text-center py-6">Queue is empty.</div>}
+                      {queueJobs.length === 0 && (
+                        <div className="text-[10px] text-dark-muted italic text-center py-6">
+                          Queue is empty.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -2907,10 +3315,15 @@ export default function CustomerDashboard() {
           <div>
             <div className="flex items-center gap-1.5">
               <ShoppingBag className="w-4 h-4 text-brand-saffron" />
-              <span className="text-xs font-bold text-dark-text">{cartItems.length} item(s) selected</span>
+              <span className="text-xs font-bold text-dark-text">
+                {cartItems.length} item(s) selected
+              </span>
             </div>
             <div className="text-[10px] text-dark-muted flex flex-col gap-0.5">
-              <span>Total: <strong className="text-dark-text">₹{finalCartTotal}</strong> (Includes ₹40 delivery fee)</span>
+              <span>
+                Total: <strong className="text-dark-text">₹{finalCartTotal}</strong> (Includes ₹40
+                delivery fee)
+              </span>
               {appliedPromoCoupon && (
                 <span className="text-green-500 font-bold text-[9px] uppercase">
                   Promo Applied ({appliedPromoCoupon.code}): -₹{appliedDiscount.toFixed(2)}
@@ -2933,7 +3346,10 @@ export default function CustomerDashboard() {
       {isAuthenticated && (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
           {showAiChat && (
-            <Card glass className="w-80 h-96 border border-brand-saffron/30 rounded-3xl flex flex-col overflow-hidden shadow-2xl shadow-brand-saffron/10 animate-fadeIn">
+            <Card
+              glass
+              className="w-80 h-96 border border-brand-saffron/30 rounded-3xl flex flex-col overflow-hidden shadow-2xl shadow-brand-saffron/10 animate-fadeIn"
+            >
               {/* Header */}
               <div className="p-4 bg-dark-surface border-b border-dark-border flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-2">
@@ -2941,10 +3357,17 @@ export default function CustomerDashboard() {
                   <span className="text-xs font-black text-dark-text">AI Food Concierge</span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleClearAiMemory} className="p-1 text-dark-muted hover:text-red-500 rounded" title="Clear Chat Memory">
+                  <button
+                    onClick={handleClearAiMemory}
+                    className="p-1 text-dark-muted hover:text-red-500 rounded"
+                    title="Clear Chat Memory"
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={() => setShowAiChat(false)} className="p-1 text-dark-muted hover:text-dark-text rounded">
+                  <button
+                    onClick={() => setShowAiChat(false)}
+                    className="p-1 text-dark-muted hover:text-dark-text rounded"
+                  >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -2953,10 +3376,15 @@ export default function CustomerDashboard() {
               {/* Chat Messages Log */}
               <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs">
                 {aiMessages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div
+                    key={idx}
+                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
                     <div
                       className={`max-w-[80%] p-3 rounded-2xl text-[11px] leading-relaxed whitespace-pre-wrap shadow-sm ${
-                        msg.sender === 'user' ? 'bg-brand-saffron text-white rounded-tr-none' : 'bg-dark-surface border border-dark-border text-dark-text rounded-tl-none'
+                        msg.sender === 'user'
+                          ? 'bg-brand-saffron text-white rounded-tr-none'
+                          : 'bg-dark-surface border border-dark-border text-dark-text rounded-tl-none'
                       }`}
                     >
                       {msg.text}
@@ -2966,20 +3394,29 @@ export default function CustomerDashboard() {
 
                 {aiLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-dark-surface border border-dark-border p-3 rounded-2xl rounded-tl-none text-dark-muted text-[10px] italic animate-pulse">Assistant typing...</div>
+                    <div className="bg-dark-surface border border-dark-border p-3 rounded-2xl rounded-tl-none text-dark-muted text-[10px] italic animate-pulse">
+                      Assistant typing...
+                    </div>
                   </div>
                 )}
 
                 {/* AI RAG Recommendation Options Cards */}
                 {!aiLoading && aiRecommendations.length > 0 && (
                   <div className="space-y-2 pt-2 border-t border-dark-border/40">
-                    <span className="text-[9px] font-bold text-dark-muted uppercase tracking-wider">Recommendations matches</span>
+                    <span className="text-[9px] font-bold text-dark-muted uppercase tracking-wider">
+                      Recommendations matches
+                    </span>
                     <div className="space-y-2">
                       {aiRecommendations.map((d) => (
-                        <div key={d.id} className="p-2 bg-dark-surface/50 border border-dark-border rounded-xl flex justify-between items-center text-[10px] gap-2">
+                        <div
+                          key={d.id}
+                          className="p-2 bg-dark-surface/50 border border-dark-border rounded-xl flex justify-between items-center text-[10px] gap-2"
+                        >
                           <div>
                             <div className="font-bold text-dark-text line-clamp-1">{d.name}</div>
-                            <div className="text-dark-muted font-medium">₹{d.price} • {d.restaurantName}</div>
+                            <div className="text-dark-muted font-medium">
+                              ₹{d.price} • {d.restaurantName}
+                            </div>
                           </div>
                           <button
                             onClick={() => handleAddRecommendedDish(d)}
@@ -3005,7 +3442,9 @@ export default function CustomerDashboard() {
                         type="button"
                         onClick={() => setVoiceLang(lang)}
                         className={`px-1.5 py-0.5 rounded transition-all font-bold cursor-pointer ${
-                          voiceLang === lang ? 'bg-brand-saffron/15 text-brand-saffron' : 'text-dark-muted'
+                          voiceLang === lang
+                            ? 'bg-brand-saffron/15 text-brand-saffron'
+                            : 'text-dark-muted'
                         }`}
                       >
                         {lang === 'en-US' && 'EN'}
@@ -3014,7 +3453,11 @@ export default function CustomerDashboard() {
                       </button>
                     ))}
                   </div>
-                  {voiceError && <span className="text-red-500 font-medium truncate max-w-[120px]">{voiceError}</span>}
+                  {voiceError && (
+                    <span className="text-red-500 font-medium truncate max-w-[120px]">
+                      {voiceError}
+                    </span>
+                  )}
                 </div>
 
                 <form onSubmit={handleSendAiMessage} className="flex gap-2">
@@ -3037,7 +3480,10 @@ export default function CustomerDashboard() {
                   >
                     🎤
                   </button>
-                  <button type="submit" className="p-2 bg-brand-saffron text-white rounded-xl hover:bg-brand-orange transition-colors">
+                  <button
+                    type="submit"
+                    className="p-2 bg-brand-saffron text-white rounded-xl hover:bg-brand-orange transition-colors"
+                  >
                     <Send className="w-4.5 h-4.5" />
                   </button>
                 </form>
@@ -3049,8 +3495,14 @@ export default function CustomerDashboard() {
             onClick={() => setShowAiChat(!showAiChat)}
             className="w-14 h-14 bg-gradient-to-tr from-brand-orange to-brand-saffron text-white rounded-full flex items-center justify-center shadow-xl shadow-brand-saffron/30 hover:scale-110 active:scale-95 transition-transform duration-300 relative"
           >
-            {showAiChat ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6 animate-pulse" />}
-            {!showAiChat && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />}
+            {showAiChat ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <MessageSquare className="w-6 h-6 animate-pulse" />
+            )}
+            {!showAiChat && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+            )}
           </button>
         </div>
       )}
@@ -3059,37 +3511,60 @@ export default function CustomerDashboard() {
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <Card className="w-full max-w-md bg-dark-surface border border-dark-border p-6 rounded-3xl relative space-y-6">
-            <button className="absolute right-4 top-4 text-dark-muted hover:text-dark-text" onClick={() => setShowPaymentModal(false)}>
+            <button
+              className="absolute right-4 top-4 text-dark-muted hover:text-dark-text"
+              onClick={() => setShowPaymentModal(false)}
+            >
               <X className="w-5 h-5" />
             </button>
 
             <div>
               <h3 className="font-extrabold text-base">Select Payment Method</h3>
-              <p className="text-xs text-dark-muted">Choose your preferred gateway to complete checkout</p>
+              <p className="text-xs text-dark-muted">
+                Choose your preferred gateway to complete checkout
+              </p>
             </div>
 
-            {paymentError && <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs px-4 py-2.5 rounded-xl">{paymentError}</div>}
+            {paymentError && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs px-4 py-2.5 rounded-xl">
+                {paymentError}
+              </div>
+            )}
 
             <div className="space-y-3">
               {[
                 { id: 'WALLET', label: 'SwiggyZone Wallet', desc: `Balance: ₹${walletBalance}` },
                 { id: 'STRIPE', label: 'Credit Card / Visa', desc: 'Secure processing via Stripe' },
-                { id: 'RAZORPAY', label: 'Net Banking / UPI', desc: 'Fast transactions via Razorpay' },
-                { id: 'COD', label: 'Cash on Delivery (COD)', desc: 'Pay with cash at your doorstep' },
+                {
+                  id: 'RAZORPAY',
+                  label: 'Net Banking / UPI',
+                  desc: 'Fast transactions via Razorpay',
+                },
+                {
+                  id: 'COD',
+                  label: 'Cash on Delivery (COD)',
+                  desc: 'Pay with cash at your doorstep',
+                },
               ].map((gateway) => (
                 <button
                   key={gateway.id}
                   onClick={() => setPaymentMethod(gateway.id as any)}
                   className={`w-full py-3.5 px-4 rounded-xl border text-left flex justify-between items-center transition-all duration-300 ${
-                    paymentMethod === gateway.id ? 'border-brand-saffron bg-brand-saffron/10 text-brand-saffron shadow-lg shadow-brand-saffron/5' : 'border-dark-border text-dark-text hover:border-dark-text/40'
+                    paymentMethod === gateway.id
+                      ? 'border-brand-saffron bg-brand-saffron/10 text-brand-saffron shadow-lg shadow-brand-saffron/5'
+                      : 'border-dark-border text-dark-text hover:border-dark-text/40'
                   }`}
                 >
                   <div className="space-y-0.5">
                     <div className="text-xs font-bold">{gateway.label}</div>
                     <div className="text-[10px] text-dark-muted">{gateway.desc}</div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === gateway.id ? 'border-brand-saffron bg-brand-saffron' : 'border-dark-border'}`}>
-                    {paymentMethod === gateway.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === gateway.id ? 'border-brand-saffron bg-brand-saffron' : 'border-dark-border'}`}
+                  >
+                    {paymentMethod === gateway.id && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                    )}
                   </div>
                 </button>
               ))}
@@ -3117,7 +3592,10 @@ export default function CustomerDashboard() {
                 <Receipt className="w-4 h-4 text-brand-saffron" />
                 Receipt Invoice #{invoiceOrderId}
               </h3>
-              <button className="text-dark-muted hover:text-dark-text" onClick={() => setInvoiceHtml(null)}>
+              <button
+                className="text-dark-muted hover:text-dark-text"
+                onClick={() => setInvoiceHtml(null)}
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -3148,13 +3626,20 @@ export default function CustomerDashboard() {
       {selectedDish && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <Card className="w-full max-w-md bg-dark-surface border border-dark-border p-6 rounded-3xl relative space-y-6">
-            <button className="absolute right-4 top-4 text-dark-muted hover:text-dark-text" onClick={() => setSelectedDish(null)}>
+            <button
+              className="absolute right-4 top-4 text-dark-muted hover:text-dark-text"
+              onClick={() => setSelectedDish(null)}
+            >
               <X className="w-5 h-5" />
             </button>
 
             <div className="space-y-1">
-              <span className={`w-3.5 h-3.5 border rounded flex items-center justify-center shrink-0 ${selectedDish.isVeg ? 'border-green-600' : 'border-red-600'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${selectedDish.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+              <span
+                className={`w-3.5 h-3.5 border rounded flex items-center justify-center shrink-0 ${selectedDish.isVeg ? 'border-green-600' : 'border-red-600'}`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${selectedDish.isVeg ? 'bg-green-600' : 'bg-red-600'}`}
+                />
               </span>
               <h3 className="font-extrabold text-base pt-1">{selectedDish.name}</h3>
               <p className="text-xs text-dark-muted">{selectedDish.description}</p>
@@ -3162,14 +3647,18 @@ export default function CustomerDashboard() {
 
             {selectedDish.variants && selectedDish.variants.length > 0 && (
               <div className="space-y-2.5">
-                <h4 className="text-xs font-bold text-dark-muted uppercase tracking-wider">Choose Portion Size</h4>
+                <h4 className="text-xs font-bold text-dark-muted uppercase tracking-wider">
+                  Choose Portion Size
+                </h4>
                 <div className="space-y-2">
                   {selectedDish.variants.map((v: any) => (
                     <button
                       key={v.id}
                       onClick={() => setSelectedVariant(v)}
                       className={`w-full py-3 px-4 rounded-xl border text-xs font-semibold flex justify-between items-center transition-all duration-300 ${
-                        selectedVariant?.id === v.id ? 'border-brand-saffron bg-brand-saffron/10 text-brand-saffron' : 'border-dark-border text-dark-muted hover:border-dark-text'
+                        selectedVariant?.id === v.id
+                          ? 'border-brand-saffron bg-brand-saffron/10 text-brand-saffron'
+                          : 'border-dark-border text-dark-muted hover:border-dark-text'
                       }`}
                     >
                       <span>{v.name}</span>
@@ -3182,7 +3671,9 @@ export default function CustomerDashboard() {
 
             {selectedDish.addons && selectedDish.addons.length > 0 && (
               <div className="space-y-2.5">
-                <h4 className="text-xs font-bold text-dark-muted uppercase tracking-wider">Select Add-ons</h4>
+                <h4 className="text-xs font-bold text-dark-muted uppercase tracking-wider">
+                  Select Add-ons
+                </h4>
                 <div className="space-y-2">
                   {selectedDish.addons.map((a: any) => {
                     const isSelected = selectedAddons.some((addon) => addon.id === a.id);
@@ -3191,11 +3682,15 @@ export default function CustomerDashboard() {
                         key={a.id}
                         onClick={() => handleToggleAddon(a)}
                         className={`w-full py-3 px-4 rounded-xl border text-xs font-semibold flex justify-between items-center transition-all duration-300 ${
-                          isSelected ? 'border-brand-saffron bg-brand-saffron/10 text-brand-saffron' : 'border-dark-border text-dark-muted hover:border-dark-text'
+                          isSelected
+                            ? 'border-brand-saffron bg-brand-saffron/10 text-brand-saffron'
+                            : 'border-dark-border text-dark-muted hover:border-dark-text'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-brand-saffron border-brand-saffron' : 'border-dark-border'}`}>
+                          <div
+                            className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-brand-saffron border-brand-saffron' : 'border-dark-border'}`}
+                          >
                             {isSelected && <Check className="w-3 h-3 text-white" />}
                           </div>
                           <span>{a.name}</span>
@@ -3212,7 +3707,10 @@ export default function CustomerDashboard() {
               <div>
                 <span className="text-[10px] text-dark-muted">Total Unit Price</span>
                 <div className="text-base font-extrabold text-brand-saffron">
-                  ₹{selectedDish.price + (selectedVariant ? selectedVariant.priceDelta : 0) + selectedAddons.reduce((sum, a) => sum + a.price, 0)}
+                  ₹
+                  {selectedDish.price +
+                    (selectedVariant ? selectedVariant.priceDelta : 0) +
+                    selectedAddons.reduce((sum, a) => sum + a.price, 0)}
                 </div>
               </div>
               <Button size="sm" onClick={handleConfirmCustomization}>
