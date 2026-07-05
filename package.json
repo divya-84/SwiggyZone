@@ -1,0 +1,30 @@
+{
+  "name": "swiggyzone",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@11.16.0",
+  "description": "Production-ready AI-powered food delivery platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\"",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "eslint": "^9.6.0",
+    "husky": "^9.0.11",
+    "prettier": "^3.3.2",
+    "turbo": "^2.0.4",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "helmet": "^8.2.0"
+  }
+}

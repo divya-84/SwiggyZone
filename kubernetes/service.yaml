@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: swiggyzone-api-service
+spec:
+  selector:
+    app: swiggyzone-api
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: swiggyzone-web-service
+spec:
+  selector:
+    app: swiggyzone-web
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer

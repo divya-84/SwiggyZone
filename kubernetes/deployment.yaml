@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swiggyzone-api-deployment
+  labels:
+    app: swiggyzone-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: swiggyzone-api
+  template:
+    metadata:
+      labels:
+        app: swiggyzone-api
+    spec:
+      containers:
+        - name: api
+          image: swiggyzone/api:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: database-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwt-secret
+            - name: REDIS_HOST
+              value: "redis-service"
+            - name: REDIS_PORT
+              value: "6379"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swiggyzone-web-deployment
+  labels:
+    app: swiggyzone-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: swiggyzone-web
+  template:
+    metadata:
+      labels:
+        app: swiggyzone-web
+    spec:
+      containers:
+        - name: web
+          image: swiggyzone/web:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://swiggyzone-api-service:4000/api"
