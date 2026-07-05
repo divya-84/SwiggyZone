@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "nest build",
+    "build": "node -e \"process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost/db'; require('child_process').execSync('prisma generate', {stdio: 'inherit'})\" && nest build",
     "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
