@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: swiggyzone-api
+    env: node
+    plan: free
+    rootDir: apps/api
+    buildCommand: cd ../.. && npm install && npx turbo run build --filter=@swiggyzone/api
+    startCommand: npm run start:prod
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_HOST
+        value: localhost
+      - key: REDIS_PORT
+        value: 6379
