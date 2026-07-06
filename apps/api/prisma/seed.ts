@@ -240,7 +240,8 @@ async function main() {
           items: [
             {
               name: 'Special Saffron Chicken Biryani',
-              description: 'Fragrant basmati rice layered with juicy chicken and secret saffron spices.',
+              description:
+                'Fragrant basmati rice layered with juicy chicken and secret saffron spices.',
               price: 320,
               image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=400',
               isVeg: false,
@@ -296,7 +297,8 @@ async function main() {
           items: [
             {
               name: 'Craft Smokehouse Beef Burger',
-              description: 'Juicy smashed beef patty, cheddar, smoked bacon, caramelized onion, and barbecue sauce.',
+              description:
+                'Juicy smashed beef patty, cheddar, smoked bacon, caramelized onion, and barbecue sauce.',
               price: 240,
               image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400',
               isVeg: false,
@@ -315,7 +317,8 @@ async function main() {
             },
             {
               name: 'Spicy Paneer Crunch Burger',
-              description: 'Crispy fried cottage cheese patty, spicy chipotle mayo, and fresh lettuce.',
+              description:
+                'Crispy fried cottage cheese patty, spicy chipotle mayo, and fresh lettuce.',
               price: 190,
               image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=400',
               isVeg: true,
@@ -328,7 +331,10 @@ async function main() {
         },
       ],
       reviews: [
-        { rating: 5, comment: 'Best burgers in Indiranagar. The double patty is highly recommended!' },
+        {
+          rating: 5,
+          comment: 'Best burgers in Indiranagar. The double patty is highly recommended!',
+        },
       ],
     },
     {
@@ -348,7 +354,8 @@ async function main() {
           items: [
             {
               name: 'Margherita Neapoletana',
-              description: 'San Marzano tomatoes, fresh mozzarella, extra virgin olive oil, and sweet basil.',
+              description:
+                'San Marzano tomatoes, fresh mozzarella, extra virgin olive oil, and sweet basil.',
               price: 290,
               image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=80&w=400',
               isVeg: true,
@@ -376,9 +383,7 @@ async function main() {
           ],
         },
       ],
-      reviews: [
-        { rating: 5, comment: 'Pure Italian taste. Crust is thin, chewy, and perfect.' },
-      ],
+      reviews: [{ rating: 5, comment: 'Pure Italian taste. Crust is thin, chewy, and perfect.' }],
     },
     {
       id: 'rest-4',
@@ -397,7 +402,8 @@ async function main() {
           items: [
             {
               name: 'Schezwan Chili Garlic Noodles',
-              description: 'Spicy hand-pulled noodles tossed with bell peppers, garlic, and hot chili paste.',
+              description:
+                'Spicy hand-pulled noodles tossed with bell peppers, garlic, and hot chili paste.',
               price: 180,
               image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=400',
               isVeg: true,
@@ -413,9 +419,7 @@ async function main() {
           ],
         },
       ],
-      reviews: [
-        { rating: 4, comment: 'Spicy and super filling. Good quantity.' },
-      ],
+      reviews: [{ rating: 4, comment: 'Spicy and super filling. Good quantity.' }],
     },
     {
       id: 'rest-5',
@@ -447,9 +451,7 @@ async function main() {
           ],
         },
       ],
-      reviews: [
-        { rating: 5, comment: 'Best lava cake ever! Tastes incredible when warm.' },
-      ],
+      reviews: [{ rating: 5, comment: 'Best lava cake ever! Tastes incredible when warm.' }],
     },
   ];
 

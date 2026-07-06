@@ -18,7 +18,9 @@ export class SecurityController {
   @Get('health')
   @UseGuards(RolesGuard)
   @Roles(UserRoleName.ADMIN)
-  @ApiOperation({ summary: 'Retrieve system telemetry, uptime, memory, and database connection status' })
+  @ApiOperation({
+    summary: 'Retrieve system telemetry, uptime, memory, and database connection status',
+  })
   async getHealth() {
     return this.service.getSystemHealth();
   }
@@ -41,10 +43,7 @@ export class SecurityController {
 
   @Post('audit')
   @ApiOperation({ summary: 'Log a simulated security audit log' })
-  async createAuditLog(
-    @CurrentUser() user: User,
-    @Body('action') action: string,
-  ) {
+  async createAuditLog(@CurrentUser() user: User, @Body('action') action: string) {
     return this.service.logSecurityAudit(user.id, action);
   }
 }

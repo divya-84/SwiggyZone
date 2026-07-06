@@ -7,18 +7,21 @@ This project is structured as a TypeScript monorepo using **npm workspaces** and
 ## 🚀 Tech Stack
 
 ### Frontend (`apps/web`)
+
 - **Next.js 15** & **React 19**
 - **TypeScript** & **Tailwind CSS**
 - **Redux Toolkit** (Global state management)
 - **React Query** (Server state synchronization & caching)
 
 ### Backend (`apps/api`)
+
 - **NestJS** (Modular NodeJS framework)
 - **PostgreSQL** (Core relational database)
 - **Prisma** (Next-generation ORM)
 - **Redis** (Caching & session management)
 
 ### Shared Packages
+
 - `packages/shared`: Shared TypeScript types, schemas, and enums.
 - `packages/ui`: Shared React 19 component library utilizing Tailwind CSS.
 
@@ -56,24 +59,29 @@ This project is structured as a TypeScript monorepo using **npm workspaces** and
 ## 🛠️ Getting Started
 
 ### Prerequisites
+
 Make sure you have the following installed:
+
 - [Node.js](https://nodejs.org/) (v24 or later)
 - [Docker & Docker Compose](https://www.docker.com/)
 
 ### Installation & Setup
 
 1. **Clone the repository and go to the workspace directory**:
+
    ```bash
    cd SwiggyZone
    ```
 
 2. **Install all dependencies** (This will automatically link the workspaces):
+
    ```bash
    npm install
    ```
 
 3. **Initialize Environment Variables**:
    Copy `.env.example` in both apps to `.env`:
+
    ```bash
    cp apps/web/.env.example apps/web/.env
    cp apps/api/.env.example apps/api/.env
@@ -90,7 +98,8 @@ Make sure you have the following installed:
 
 We use **Turborepo** to orchestrate workspace tasks.
 
-* **Run all apps in development mode**:
+- **Run all apps in development mode**:
+
   ```bash
   npm run dev
   ```
@@ -98,12 +107,13 @@ We use **Turborepo** to orchestrate workspace tasks.
   - Backend API runs at: `http://localhost:4000/api`
   - Swagger Documentation runs at: `http://localhost:4000/docs`
 
-* **Build all projects**:
+- **Build all projects**:
+
   ```bash
   npm run build
   ```
 
-* **Format and Lint code**:
+- **Format and Lint code**:
   ```bash
   npm run format
   ```
@@ -122,6 +132,7 @@ docker compose up --build
 ```
 
 This starts:
+
 - **PostgreSQL** on port `5432`
 - **Redis** on port `6379`
 - **NestJS API** on port `4000`
@@ -132,6 +143,7 @@ This starts:
 ## 🛡️ Linting & Formatting Guidelines
 
 We enforce strict linting and message conventions:
+
 - **Prettier** is used for formatting.
 - **ESLint** is configured for code quality check.
 - **Commitlint** & **Husky** enforceconventional commit formats. Ensure your commit messages look like:

@@ -17,7 +17,7 @@ export class AdminService {
     });
 
     const grossSales = totalGross._sum.total || 0;
-    const platformCommission = grossSales * 0.10; // 10% platform fee commission
+    const platformCommission = grossSales * 0.1; // 10% platform fee commission
 
     const usersCount = await this.prisma.user.count();
     const restaurantsCount = await this.prisma.restaurant.count();
@@ -145,7 +145,8 @@ export class AdminService {
       data: {
         code: dto.code,
         description: dto.description,
-        discountType: dto.discountType === 'PERCENTAGE' ? DiscountType.PERCENTAGE : DiscountType.FLAT,
+        discountType:
+          dto.discountType === 'PERCENTAGE' ? DiscountType.PERCENTAGE : DiscountType.FLAT,
         discountValue: dto.discountValue,
         minOrderValue: dto.minOrderValue || 0.0,
         maxUses: dto.maxUses || 100,
@@ -180,7 +181,8 @@ export class AdminService {
       userEmail: 'customer2@gmail.com',
       category: 'Coupon Abuse',
       riskScore: 85,
-      description: "Promo code 'SWIGGY50' was applied 4 times in 15 minutes by accounts sharing credit card fingerprint hash cc_7a8b9c...",
+      description:
+        "Promo code 'SWIGGY50' was applied 4 times in 15 minutes by accounts sharing credit card fingerprint hash cc_7a8b9c...",
       status: 'PENDING',
     },
     {
@@ -190,7 +192,8 @@ export class AdminService {
       userEmail: 'customer@gmail.com',
       category: 'Fake Review',
       riskScore: 78,
-      description: "Review comment 'Great quality, highly recommended!' submitted 1.2s after order delivery confirmation. Suspected bot submission.",
+      description:
+        "Review comment 'Great quality, highly recommended!' submitted 1.2s after order delivery confirmation. Suspected bot submission.",
       status: 'PENDING',
     },
     {
@@ -200,7 +203,8 @@ export class AdminService {
       userEmail: 'owner@saffronhub.com',
       category: 'Payment Fraud',
       riskScore: 92,
-      description: "High-value checkout attempt (₹4,850) rejected due to 3 consecutive card failures with mismatching billing ZIP codes.",
+      description:
+        'High-value checkout attempt (₹4,850) rejected due to 3 consecutive card failures with mismatching billing ZIP codes.',
       status: 'PENDING',
     },
     {
@@ -210,7 +214,8 @@ export class AdminService {
       userEmail: 'bot.tester@gmail.com',
       category: 'Bot Activity',
       riskScore: 96,
-      description: "User registration, address addition, and checkout completed in 1.9 seconds. User agent header is missing standard browser tags.",
+      description:
+        'User registration, address addition, and checkout completed in 1.9 seconds. User agent header is missing standard browser tags.',
       status: 'PENDING',
     },
     {
@@ -220,21 +225,23 @@ export class AdminService {
       userEmail: 'rahul.dup@gmail.com',
       category: 'Duplicate Account',
       riskScore: 88,
-      description: "Account registered using phone number +919876543210 which matches existing customer profile rahul.sharma@gmail.com.",
+      description:
+        'Account registered using phone number +919876543210 which matches existing customer profile rahul.sharma@gmail.com.',
       status: 'PENDING',
     },
   ];
 
   async getFraudDetails() {
     const totalScanned = 1248;
-    const flaggedCount = this.fraudAlerts.filter(a => a.status === 'PENDING').length;
-    const blockedCount = this.fraudAlerts.filter(a => a.status === 'BLOCKED').length;
+    const flaggedCount = this.fraudAlerts.filter((a) => a.status === 'PENDING').length;
+    const blockedCount = this.fraudAlerts.filter((a) => a.status === 'BLOCKED').length;
     const savingsSaved = 12450.0;
 
-    const pendingAlerts = this.fraudAlerts.filter(a => a.status === 'PENDING');
-    const riskIndex = pendingAlerts.length > 0
-      ? Math.round(pendingAlerts.reduce((sum, a) => sum + a.riskScore, 0) / pendingAlerts.length)
-      : 12;
+    const pendingAlerts = this.fraudAlerts.filter((a) => a.status === 'PENDING');
+    const riskIndex =
+      pendingAlerts.length > 0
+        ? Math.round(pendingAlerts.reduce((sum, a) => sum + a.riskScore, 0) / pendingAlerts.length)
+        : 12;
 
     return {
       stats: {
@@ -314,7 +321,7 @@ export class AdminService {
   }
 
   async blockFraudUser(alertId: string) {
-    const alert = this.fraudAlerts.find(a => a.id === alertId);
+    const alert = this.fraudAlerts.find((a) => a.id === alertId);
     if (!alert) {
       throw new NotFoundException('Alert not found');
     }
@@ -323,7 +330,7 @@ export class AdminService {
   }
 
   async dismissFraudAlert(alertId: string) {
-    const alert = this.fraudAlerts.find(a => a.id === alertId);
+    const alert = this.fraudAlerts.find((a) => a.id === alertId);
     if (!alert) {
       throw new NotFoundException('Alert not found');
     }
@@ -334,10 +341,10 @@ export class AdminService {
   async getAnalyticsData() {
     const totalGross = await this.prisma.order.aggregate({
       where: { status: 'DELIVERED' },
-      _sum: { total: true }
+      _sum: { total: true },
     });
     const grossSales = totalGross._sum.total || 0;
-    const platformCommission = grossSales * 0.10;
+    const platformCommission = grossSales * 0.1;
 
     return {
       stats: {
@@ -353,24 +360,24 @@ export class AdminService {
         { day: 'Thu', actual: 5900, forecast: 5750 },
         { day: 'Fri', actual: 6100, forecast: 6200 },
         { day: 'Sat', actual: 5700, forecast: 5850 },
-        { day: 'Sun', actual: null, forecast: 6400 }
+        { day: 'Sun', actual: null, forecast: 6400 },
       ],
       heatmaps: [
         { zone: 'HSR Layout', demand: 96, drivers: 8, orders: 53, color: 'CRITICAL' },
         { zone: 'Indiranagar', demand: 92, drivers: 14, orders: 48, color: 'HIGH' },
         { zone: 'Koramangala', demand: 85, drivers: 18, orders: 41, color: 'HIGH' },
         { zone: 'Whitefield', demand: 64, drivers: 22, orders: 29, color: 'MODERATE' },
-        { zone: 'Jayanagar', demand: 35, drivers: 10, orders: 12, color: 'LOW' }
+        { zone: 'Jayanagar', demand: 35, drivers: 10, orders: 12, color: 'LOW' },
       ],
       customerAnalytics: {
         retentionRate: 78.4,
         orderFrequency: 4.8,
-        clvAverage: 2450.00,
+        clvAverage: 2450.0,
         topCustomers: [
-          { email: 'customer@gmail.com', spend: 4890.00, count: 9 },
-          { email: 'amit@gmail.com', spend: 3600.00, count: 6 },
-          { email: 'sanjana@gmail.com', spend: 2840.00, count: 5 }
-        ]
+          { email: 'customer@gmail.com', spend: 4890.0, count: 9 },
+          { email: 'amit@gmail.com', spend: 3600.0, count: 6 },
+          { email: 'sanjana@gmail.com', spend: 2840.0, count: 5 },
+        ],
       },
       restaurantAnalytics: {
         averagePrepTime: 18.5,
@@ -378,14 +385,26 @@ export class AdminService {
         topRestaurants: [
           { name: 'Saffron Hub Kitchen', sales: 24800, rating: 4.8 },
           { name: 'Pizza Italia', sales: 18400, rating: 4.5 },
-          { name: 'Sweet Desires Bakery', sales: 9200, rating: 4.6 }
-        ]
+          { name: 'Sweet Desires Bakery', sales: 9200, rating: 4.6 },
+        ],
       },
       aiInsights: [
-        { type: 'CRITICAL', message: 'HSR Layout demand index at 96% with only 8 active drivers. ETA is rising to 42 mins. Recommend re-routing 4 idle drivers from Jayanagar (demand 35%).' },
-        { type: 'TREND', message: 'Biryani and Dessert sales spike by 34% during rain. Prepare weather-responsive promo codes (e.g., RAINY15) to leverage.' },
-        { type: 'EFFICIENCY', message: 'Sweet Desires Bakery preparation time is under 12 mins. Set up double driver matching queues to reduce pickup times.' }
-      ]
+        {
+          type: 'CRITICAL',
+          message:
+            'HSR Layout demand index at 96% with only 8 active drivers. ETA is rising to 42 mins. Recommend re-routing 4 idle drivers from Jayanagar (demand 35%).',
+        },
+        {
+          type: 'TREND',
+          message:
+            'Biryani and Dessert sales spike by 34% during rain. Prepare weather-responsive promo codes (e.g., RAINY15) to leverage.',
+        },
+        {
+          type: 'EFFICIENCY',
+          message:
+            'Sweet Desires Bakery preparation time is under 12 mins. Set up double driver matching queues to reduce pickup times.',
+        },
+      ],
     };
   }
 
@@ -419,8 +438,8 @@ export class AdminService {
     const rps = Math.round((cap / (totalTimeMs / 1000)) * 10) / 10;
 
     latencies.sort((a, b) => a - b);
-    const p50 = latencies[Math.floor(latencies.length * 0.50)] || 0;
-    const p90 = latencies[Math.floor(latencies.length * 0.90)] || 0;
+    const p50 = latencies[Math.floor(latencies.length * 0.5)] || 0;
+    const p90 = latencies[Math.floor(latencies.length * 0.9)] || 0;
     const p99 = latencies[Math.floor(latencies.length * 0.99)] || 0;
     const avg = Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length) || 0;
 

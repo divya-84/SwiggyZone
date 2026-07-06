@@ -17,7 +17,9 @@ export class AiService {
       this.openai = new OpenAI({ apiKey });
       this.logger.log('OpenAI client successfully initialized');
     } else {
-      this.logger.warn('OPENAI_API_KEY missing, food assistant running in local RAG engine fallback mode');
+      this.logger.warn(
+        'OPENAI_API_KEY missing, food assistant running in local RAG engine fallback mode',
+      );
     }
   }
 
@@ -70,8 +72,13 @@ export class AiService {
     let filteredDishes = [...allDishes];
     const normalizedPrompt = prompt.toLowerCase();
 
-    if (normalizedPrompt.includes('peanut') || normalizedPrompt.includes('nut') || normalizedPrompt.includes('allergy')) {
-      allergenWarning = '⚠️ Note: Allergen filter applied for nuts. Recommending allergen-safe options.';
+    if (
+      normalizedPrompt.includes('peanut') ||
+      normalizedPrompt.includes('nut') ||
+      normalizedPrompt.includes('allergy')
+    ) {
+      allergenWarning =
+        '⚠️ Note: Allergen filter applied for nuts. Recommending allergen-safe options.';
       filteredDishes = filteredDishes.filter(
         (d) =>
           !d.name.toLowerCase().includes('peanut') &&
@@ -82,8 +89,13 @@ export class AiService {
       );
     }
 
-    if (normalizedPrompt.includes('dairy') || normalizedPrompt.includes('lactose') || normalizedPrompt.includes('milk')) {
-      allergenWarning = '⚠️ Note: Lactose-free options recommended. Excluding heavy paneer or cream dishes.';
+    if (
+      normalizedPrompt.includes('dairy') ||
+      normalizedPrompt.includes('lactose') ||
+      normalizedPrompt.includes('milk')
+    ) {
+      allergenWarning =
+        '⚠️ Note: Lactose-free options recommended. Excluding heavy paneer or cream dishes.';
       filteredDishes = filteredDishes.filter(
         (d) =>
           !d.name.toLowerCase().includes('paneer') &&
@@ -96,7 +108,10 @@ export class AiService {
 
     // 2. Check budget limits in query
     let budgetLimit: number | null = null;
-    const budgetMatch = normalizedPrompt.match(/under\s*₹?\s*(\d+)/i) || normalizedPrompt.match(/(\d+)\s*rupees/i) || normalizedPrompt.match(/budget\s*of\s*(\d+)/i);
+    const budgetMatch =
+      normalizedPrompt.match(/under\s*₹?\s*(\d+)/i) ||
+      normalizedPrompt.match(/(\d+)\s*rupees/i) ||
+      normalizedPrompt.match(/budget\s*of\s*(\d+)/i);
     if (budgetMatch) {
       budgetLimit = parseInt(budgetMatch[1]);
       filteredDishes = filteredDishes.filter((d) => d.price <= (budgetLimit || 1000));
@@ -105,9 +120,13 @@ export class AiService {
     // 3. Match specific cuisine keywords
     let matchedDishes = [...filteredDishes];
     if (normalizedPrompt.includes('biryani') || normalizedPrompt.includes('rice')) {
-      matchedDishes = filteredDishes.filter((d) => d.name.toLowerCase().includes('biryani') || d.name.toLowerCase().includes('rice'));
+      matchedDishes = filteredDishes.filter(
+        (d) => d.name.toLowerCase().includes('biryani') || d.name.toLowerCase().includes('rice'),
+      );
     } else if (normalizedPrompt.includes('burger') || normalizedPrompt.includes('sandwich')) {
-      matchedDishes = filteredDishes.filter((d) => d.name.toLowerCase().includes('burger') || d.name.toLowerCase().includes('roll'));
+      matchedDishes = filteredDishes.filter(
+        (d) => d.name.toLowerCase().includes('burger') || d.name.toLowerCase().includes('roll'),
+      );
     } else if (normalizedPrompt.includes('veg') && !normalizedPrompt.includes('non')) {
       matchedDishes = filteredDishes.filter((d) => d.isVeg);
     }
@@ -141,13 +160,24 @@ Rules:
           temperature: 0.7,
         });
 
-        responseText = response.choices[0]?.message?.content || 'I could not find matching food items';
+        responseText =
+          response.choices[0]?.message?.content || 'I could not find matching food items';
       } catch (err) {
         this.logger.error('OpenAI completion failed, using local RAG fallback', err);
-        responseText = this.getLocalRagResponse(normalizedPrompt, suggestions, allergenWarning, budgetLimit);
+        responseText = this.getLocalRagResponse(
+          normalizedPrompt,
+          suggestions,
+          allergenWarning,
+          budgetLimit,
+        );
       }
     } else {
-      responseText = this.getLocalRagResponse(normalizedPrompt, suggestions, allergenWarning, budgetLimit);
+      responseText = this.getLocalRagResponse(
+        normalizedPrompt,
+        suggestions,
+        allergenWarning,
+        budgetLimit,
+      );
     }
 
     // Save turn history

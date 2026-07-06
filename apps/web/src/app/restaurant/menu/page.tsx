@@ -81,22 +81,25 @@ export default function RestaurantMenuPage() {
     e.preventDefault();
     if (!selectedCategoryId) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/restaurants/category/${selectedCategoryId}/item`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+      const res = await fetch(
+        `${API_BASE_URL}/api/restaurants/category/${selectedCategoryId}/item`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            name: dishName,
+            description: dishDesc,
+            price: parseFloat(dishPrice),
+            isVeg: dishIsVeg,
+            calories: parseInt(dishCalories) || 0,
+            initialStock: parseInt(dishStock) || 50,
+            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400',
+          }),
         },
-        body: JSON.stringify({
-          name: dishName,
-          description: dishDesc,
-          price: parseFloat(dishPrice),
-          isVeg: dishIsVeg,
-          calories: parseInt(dishCalories) || 0,
-          initialStock: parseInt(dishStock) || 50,
-          image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400',
-        }),
-      });
+      );
       if (res.ok) {
         setDishName('');
         setDishDesc('');
@@ -161,7 +164,6 @@ export default function RestaurantMenuPage() {
   return (
     <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
       <div className="min-h-screen bg-dark-bg text-dark-text pb-20">
-        
         {/* Header */}
         <header className="bg-dark-surface border-b border-dark-border py-4 px-6 flex justify-between items-center sticky top-0 z-30">
           <div className="flex items-center gap-3">
@@ -181,10 +183,13 @@ export default function RestaurantMenuPage() {
         </header>
 
         <main className="max-w-4xl w-full mx-auto p-4 md:p-8 space-y-6 animate-fadeIn">
-          
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-bold">Categories & Dishes</h3>
-            <Button size="sm" className="flex items-center gap-1.5" onClick={() => setShowAddCat(true)}>
+            <Button
+              size="sm"
+              className="flex items-center gap-1.5"
+              onClick={() => setShowAddCat(true)}
+            >
               <Plus className="w-4 h-4" />
               <span>Add Category</span>
             </Button>
@@ -213,17 +218,26 @@ export default function RestaurantMenuPage() {
                 <div className="divide-y divide-dark-border/40">
                   {cat.items && cat.items.length > 0 ? (
                     cat.items.map((item: any) => (
-                      <div key={item.id} className="py-4 flex justify-between items-center flex-wrap gap-4">
+                      <div
+                        key={item.id}
+                        className="py-4 flex justify-between items-center flex-wrap gap-4"
+                      >
                         <div className="space-y-1">
                           <div className="flex items-center gap-1.5">
-                            <span className={`w-3 h-3 border rounded flex items-center justify-center shrink-0 ${
-                              item.isVeg ? 'border-green-600' : 'border-red-600'
-                            }`}>
-                              <span className={`w-1 h-1 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                            <span
+                              className={`w-3 h-3 border rounded flex items-center justify-center shrink-0 ${
+                                item.isVeg ? 'border-green-600' : 'border-red-600'
+                              }`}
+                            >
+                              <span
+                                className={`w-1 h-1 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`}
+                              />
                             </span>
                             <span className="font-bold text-xs text-dark-text">{item.name}</span>
                           </div>
-                          <p className="text-[11px] text-dark-muted line-clamp-1">{item.description}</p>
+                          <p className="text-[11px] text-dark-muted line-clamp-1">
+                            {item.description}
+                          </p>
                           <div className="flex gap-4 text-[10px] text-dark-muted">
                             <span>₹{item.price}</span>
                             <span>•</span>
@@ -235,7 +249,9 @@ export default function RestaurantMenuPage() {
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-2 bg-dark-bg px-2.5 py-1.5 rounded-xl border border-dark-border">
                             <button
-                              onClick={() => handleUpdateStock(item.id, item.inventory?.quantity || 0, -1)}
+                              onClick={() =>
+                                handleUpdateStock(item.id, item.inventory?.quantity || 0, -1)
+                              }
                               className="text-dark-muted hover:text-dark-text"
                             >
                               <Minus className="w-3.5 h-3.5" />
@@ -244,19 +260,26 @@ export default function RestaurantMenuPage() {
                               {item.inventory?.quantity ?? 0}
                             </span>
                             <button
-                              onClick={() => handleUpdateStock(item.id, item.inventory?.quantity || 0, 1)}
+                              onClick={() =>
+                                handleUpdateStock(item.id, item.inventory?.quantity || 0, 1)
+                              }
                               className="text-dark-muted hover:text-dark-text"
                             >
                               <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                            item.inventory?.status === 'IN_STOCK' && 'bg-green-600/10 text-green-500'
-                          } ${
-                            item.inventory?.status === 'LOW_STOCK' && 'bg-amber-600/10 text-amber-500'
-                          } ${
-                            item.inventory?.status === 'OUT_OF_STOCK' && 'bg-red-600/10 text-red-500'
-                          }`}>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                              item.inventory?.status === 'IN_STOCK' &&
+                              'bg-green-600/10 text-green-500'
+                            } ${
+                              item.inventory?.status === 'LOW_STOCK' &&
+                              'bg-amber-600/10 text-amber-500'
+                            } ${
+                              item.inventory?.status === 'OUT_OF_STOCK' &&
+                              'bg-red-600/10 text-red-500'
+                            }`}
+                          >
                             {item.inventory?.status || 'IN_STOCK'}
                           </span>
                           <button
@@ -277,14 +300,16 @@ export default function RestaurantMenuPage() {
               </Card>
             ))}
           </div>
-
         </main>
 
         {/* Modal: Add Category */}
         {showAddCat && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
             <Card className="w-full max-w-sm bg-dark-surface border border-dark-border p-6 rounded-3xl relative space-y-4">
-              <button className="absolute right-4 top-4 text-dark-muted" onClick={() => setShowAddCat(false)}>
+              <button
+                className="absolute right-4 top-4 text-dark-muted"
+                onClick={() => setShowAddCat(false)}
+              >
                 <X className="w-5 h-5" />
               </button>
               <h3 className="font-bold text-base">Create Menu Category</h3>
@@ -309,7 +334,10 @@ export default function RestaurantMenuPage() {
         {showAddItem && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
             <Card className="w-full max-w-md bg-dark-surface border border-dark-border p-6 rounded-3xl relative space-y-4 max-h-[90vh] overflow-y-auto">
-              <button className="absolute right-4 top-4 text-dark-muted" onClick={() => setShowAddItem(false)}>
+              <button
+                className="absolute right-4 top-4 text-dark-muted"
+                onClick={() => setShowAddItem(false)}
+              >
                 <X className="w-5 h-5" />
               </button>
               <h3 className="font-bold text-base">Add New Dish</h3>
@@ -379,7 +407,9 @@ export default function RestaurantMenuPage() {
                         type="button"
                         onClick={() => setDishIsVeg(true)}
                         className={`flex-1 py-2 text-xs font-semibold rounded-lg border ${
-                          dishIsVeg ? 'border-green-600 bg-green-600/10 text-green-500' : 'border-dark-border'
+                          dishIsVeg
+                            ? 'border-green-600 bg-green-600/10 text-green-500'
+                            : 'border-dark-border'
                         }`}
                       >
                         Veg
@@ -388,7 +418,9 @@ export default function RestaurantMenuPage() {
                         type="button"
                         onClick={() => setDishIsVeg(false)}
                         className={`flex-1 py-2 text-xs font-semibold rounded-lg border ${
-                          !dishIsVeg ? 'border-red-600 bg-red-600/10 text-red-500' : 'border-dark-border'
+                          !dishIsVeg
+                            ? 'border-red-600 bg-red-600/10 text-red-500'
+                            : 'border-dark-border'
                         }`}
                       >
                         Non-Veg
@@ -404,7 +436,6 @@ export default function RestaurantMenuPage() {
             </Card>
           </div>
         )}
-
       </div>
     </ProtectedRoute>
   );

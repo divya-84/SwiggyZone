@@ -1,4 +1,10 @@
-import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import Stripe from 'stripe';
 import Razorpay from 'razorpay';
@@ -24,7 +30,11 @@ export class PaymentService {
     });
   }
 
-  async createPayment(userId: string, orderId: string, method: 'STRIPE' | 'RAZORPAY' | 'COD' | 'WALLET') {
+  async createPayment(
+    userId: string,
+    orderId: string,
+    method: 'STRIPE' | 'RAZORPAY' | 'COD' | 'WALLET',
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { user: true },

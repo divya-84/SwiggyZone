@@ -13,16 +13,19 @@ export class RecommendationController {
   constructor(private readonly service: RecommendationService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Retrieve custom dish recommendations matching user history, weather, location and time' })
-  async getRecommendations(
-    @CurrentUser() user: User,
-    @Query('weather') weather?: string,
-  ) {
+  @ApiOperation({
+    summary:
+      'Retrieve custom dish recommendations matching user history, weather, location and time',
+  })
+  async getRecommendations(@CurrentUser() user: User, @Query('weather') weather?: string) {
     return this.service.getRecommendations(user.id, weather);
   }
 
   @Get('promotions')
-  @ApiOperation({ summary: 'Recommend dynamic promotions using Demand, Weather, Inventory, Distance, Festival, and Traffic' })
+  @ApiOperation({
+    summary:
+      'Recommend dynamic promotions using Demand, Weather, Inventory, Distance, Festival, and Traffic',
+  })
   async getPromotions(
     @CurrentUser() user: User,
     @Query('demand') demand?: 'LOW' | 'MEDIUM' | 'HIGH',

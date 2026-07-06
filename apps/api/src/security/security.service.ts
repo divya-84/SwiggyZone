@@ -7,7 +7,11 @@ export class SecurityService {
   constructor(private prisma: PrismaService) {}
 
   private readonly algorithm = 'aes-256-gcm';
-  private readonly secretKey = crypto.scryptSync('swiggyzone-aes-key-salt-phrase-2026', 'salt-2026', 32);
+  private readonly secretKey = crypto.scryptSync(
+    'swiggyzone-aes-key-salt-phrase-2026',
+    'salt-2026',
+    32,
+  );
 
   // AES-256-GCM Text Encryption
   encrypt(text: string): { ciphertext: string; iv: string; tag: string } {
@@ -89,7 +93,7 @@ export class SecurityService {
         total: heapTotalMB,
       },
       headers: {
-        contentSecurityPolicy: 'default-src \'self\'',
+        contentSecurityPolicy: "default-src 'self'",
         xFrameOptions: 'SAMEORIGIN',
         xXSSProtection: '1; mode=block',
         strictTransportSecurity: 'max-age=15552000; includeSubDomains',

@@ -1,9 +1,20 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { RedisService } from '../redis.service';
 import { NotificationService } from '../notification/notification.service';
 import { SocketGateway } from '../gateway/socket.gateway';
-import { OrderStatus, PaymentStatus, WalletTransactionType, NotificationType, UserRoleName } from '@prisma/client';
+import {
+  OrderStatus,
+  PaymentStatus,
+  WalletTransactionType,
+  NotificationType,
+  UserRoleName,
+} from '@prisma/client';
 
 @Injectable()
 export class DeliveryService {
@@ -213,9 +224,10 @@ export class DeliveryService {
     const reviews = await this.prisma.review.findMany({
       where: { deliveryPartnerId: partner.id },
     });
-    const avgRating = reviews.length > 0 
-      ? parseFloat((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)) 
-      : 5.0;
+    const avgRating =
+      reviews.length > 0
+        ? parseFloat((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1))
+        : 5.0;
 
     return {
       totalDeliveries,
@@ -295,7 +307,11 @@ export class DeliveryService {
 
     // Check if we need to seed orders
     const activeOrdersCount = await this.prisma.order.count({
-      where: { status: { in: [OrderStatus.READY, OrderStatus.PLACED, OrderStatus.ACCEPTED, OrderStatus.PREPARING] } },
+      where: {
+        status: {
+          in: [OrderStatus.READY, OrderStatus.PLACED, OrderStatus.ACCEPTED, OrderStatus.PREPARING],
+        },
+      },
     });
 
     if (activeOrdersCount === 0) {
@@ -357,7 +373,9 @@ export class DeliveryService {
     // 2. Fetch pending available orders
     const orders = await this.prisma.order.findMany({
       where: {
-        status: { in: [OrderStatus.READY, OrderStatus.PREPARING, OrderStatus.PLACED, OrderStatus.ACCEPTED] },
+        status: {
+          in: [OrderStatus.READY, OrderStatus.PREPARING, OrderStatus.PLACED, OrderStatus.ACCEPTED],
+        },
         deliveryPartnerId: null,
       },
       include: {
@@ -417,7 +435,11 @@ export class DeliveryService {
     // 5. Waypoints and route generation (Solving TSP)
     const waypoints: any[] = [
       { name: 'Rider Start Point', lat: 12.9715, lng: 77.6405 },
-      { name: `${updatedOrders[0].restaurant.name} (Kitchen)`, lat: updatedOrders[0].restaurant.latitude, lng: updatedOrders[0].restaurant.longitude },
+      {
+        name: `${updatedOrders[0].restaurant.name} (Kitchen)`,
+        lat: updatedOrders[0].restaurant.latitude,
+        lng: updatedOrders[0].restaurant.longitude,
+      },
     ];
 
     updatedOrders.forEach((ord, index) => {
@@ -432,7 +454,7 @@ export class DeliveryService {
     const routeCoords: [number, number][] = [];
     for (let i = 0; i < waypoints.length - 1; i++) {
       const p1 = waypoints[i];
-      const p2 = waypoints[i+1];
+      const p2 = waypoints[i + 1];
       const steps = 10;
       for (let s = 0; s <= steps; s++) {
         const t = s / steps;
@@ -489,7 +511,9 @@ export class DeliveryService {
     if (weather === 'RAINY') confidence -= 25;
     if (isBatched) confidence -= 5;
 
-    const totalEtaMins = Math.round(prepTime + travelTime + trafficDelay + weatherDelay + multiStopOverhead);
+    const totalEtaMins = Math.round(
+      prepTime + travelTime + trafficDelay + weatherDelay + multiStopOverhead,
+    );
 
     return {
       success: true,
@@ -510,7 +534,7 @@ export class DeliveryService {
         price: o.total,
         status: o.status,
         otpCode: o.otpCode,
-        eta: `${totalEtaMins + (idx * 5)} mins`,
+        eta: `${totalEtaMins + idx * 5} mins`,
         distance: idx === 0 ? 0.8 : 1.4,
       })),
       route: {

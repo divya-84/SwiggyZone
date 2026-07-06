@@ -1,65 +1,27 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url = "file:./dev.db"
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-enum UserRoleName {
-  CUSTOMER
-  DELIVERY_PARTNER
-  RESTAURANT_OWNER
-  ADMIN
-}
 
-enum OrderStatus {
-  PLACED
-  ACCEPTED
-  PREPARING
-  READY
-  PICKED_UP
-  DELIVERED
-  CANCELLED
-}
 
-enum PaymentStatus {
-  PENDING
-  SUCCESSFUL
-  FAILED
-  REFUNDED
-}
 
-enum PaymentMethod {
-  CARD
-  UPI
-  WALLET
-  COD
-}
 
-enum WalletTransactionType {
-  CREDIT
-  DEBIT
-}
 
-enum DiscountType {
-  PERCENTAGE
-  FLAT
-}
 
-enum InventoryStatus {
-  IN_STOCK
-  LOW_STOCK
-  OUT_OF_STOCK
-}
 
-enum NotificationType {
-  ORDER_UPDATE
-  PROMOTION
-  WALLET_UPDATE
-  SYSTEM
-}
+
+
+
+
+
+
+
+
 
 model User {
   id                 String             @id @default(uuid())
@@ -72,7 +34,7 @@ model User {
   verificationToken  String?
   resetToken         String?
   resetTokenExpires  DateTime?
-  roleName           UserRoleName       @default(CUSTOMER)
+  roleName           String       @default("CUSTOMER")
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   
@@ -111,7 +73,7 @@ model Address {
 
 model Role {
   id          String           @id @default(uuid())
-  name        UserRoleName     @unique
+  name        String     @unique
   description String?
   permissions RolePermission[]
 }
@@ -241,7 +203,7 @@ model Inventory {
   menuItem           MenuItem        @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   quantity           Int             @default(0)
   lowStockThreshold  Int             @default(5)
-  status             InventoryStatus @default(IN_STOCK)
+  status             String @default("IN_STOCK")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 }
@@ -254,7 +216,7 @@ model Order {
   restaurant        Restaurant       @relation(fields: [restaurantId], references: [id])
   deliveryPartnerId String?
   deliveryPartner   DeliveryPartner? @relation(fields: [deliveryPartnerId], references: [id])
-  status            OrderStatus      @default(PLACED)
+  status            String      @default("PLACED")
   subtotal          Float
   deliveryFee       Float            @default(40.0)
   tax               Float
@@ -295,8 +257,8 @@ model Payment {
   orderId              String        @unique
   order                Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   amount               Float
-  method               PaymentMethod
-  status               PaymentStatus @default(PENDING)
+  method               String
+  status               String @default("PENDING")
   transactionReference String?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
@@ -317,7 +279,7 @@ model WalletTransaction {
   walletId    String
   wallet      Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
   amount      Float
-  type        WalletTransactionType
+  type        String
   description String
   createdAt   DateTime              @default(now())
 }
@@ -326,7 +288,7 @@ model Coupon {
   id            String       @id @default(uuid())
   code          String       @unique
   description   String
-  discountType  DiscountType
+  discountType  String
   discountValue Float
   maxDiscount   Float?
   minOrderValue Float        @default(0.0)
@@ -383,7 +345,7 @@ model Notification {
   title     String
   content   String
   isRead    Boolean          @default(false)
-  type      NotificationType @default(SYSTEM)
+  type      String @default("SYSTEM")
   createdAt DateTime         @default(now())
 
   @@index([userId])
@@ -409,7 +371,7 @@ model Offer {
   restaurant    Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   title         String
   description   String
-  discountType  DiscountType
+  discountType  String
   discountValue Float
   minOrderValue Float        @default(0.0)
   isActive      Boolean      @default(true)

@@ -13,44 +13,34 @@ export class LoyaltyController {
   constructor(private readonly service: LoyaltyService) {}
 
   @Get('profile')
-  @ApiOperation({ summary: 'Retrieve customer loyalty profile, VIP tier, points, and wallet balance' })
+  @ApiOperation({
+    summary: 'Retrieve customer loyalty profile, VIP tier, points, and wallet balance',
+  })
   async getProfile(@CurrentUser() user: User) {
     return this.service.getOrCreateProfile(user.id);
   }
 
   @Post('wallet/add')
   @ApiOperation({ summary: 'Top-up wallet balance funds' })
-  async addWalletFunds(
-    @CurrentUser() user: User,
-    @Body('amount') amount: number,
-  ) {
+  async addWalletFunds(@CurrentUser() user: User, @Body('amount') amount: number) {
     return this.service.addWalletFunds(user.id, amount);
   }
 
   @Post('rewards/claim')
   @ApiOperation({ summary: 'Redeem loyalty points for catalog reward voucher' })
-  async claimReward(
-    @CurrentUser() user: User,
-    @Body('rewardId') rewardId: string,
-  ) {
+  async claimReward(@CurrentUser() user: User, @Body('rewardId') rewardId: string) {
     return this.service.claimReward(user.id, rewardId);
   }
 
   @Post('referral/redeem')
   @ApiOperation({ summary: 'Redeem friend referral invite code' })
-  async redeemReferral(
-    @CurrentUser() user: User,
-    @Body('code') code: string,
-  ) {
+  async redeemReferral(@CurrentUser() user: User, @Body('code') code: string) {
     return this.service.redeemReferral(user.id, code);
   }
 
   @Post('simulate/order')
   @ApiOperation({ summary: 'Simulate order purchase to earn points and cashback' })
-  async simulateOrder(
-    @CurrentUser() user: User,
-    @Body('amount') amount: number,
-  ) {
+  async simulateOrder(@CurrentUser() user: User, @Body('amount') amount: number) {
     return this.service.simulateOrder(user.id, amount);
   }
 }

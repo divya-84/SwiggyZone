@@ -1,5 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd ../.. && turbo run build --filter=@swiggyzone/web",
-  "installCommand": "cd ../.. && npm install"
-}

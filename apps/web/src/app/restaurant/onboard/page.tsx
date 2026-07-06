@@ -36,8 +36,7 @@ export default function RestaurantOnboardPage() {
           name,
           description,
           coverImage:
-            coverImage ||
-            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800',
+            coverImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800',
           costForTwo: parseFloat(costForTwo),
           latitude: 12.9715,
           longitude: 77.6408,
@@ -90,7 +89,9 @@ export default function RestaurantOnboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-dark-muted">Description & Cuisines</label>
+                <label className="text-xs font-medium text-dark-muted">
+                  Description & Cuisines
+                </label>
                 <textarea
                   required
                   value={description}

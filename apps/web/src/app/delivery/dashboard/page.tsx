@@ -1,5 +1,6 @@
 'use client';
 import { API_BASE_URL } from '@/config';
+import { io } from 'socket.io-client';
 
 import * as React from 'react';
 import { useSelector } from 'react-redux';

@@ -1,12 +1,15 @@
 # Deployment Guide & Production Checklist
 
 ## 1. Local Container Deploy (Docker Compose)
+
 Spin up NestJS, Next.js, Nginx, PostgreSQL, Redis, Elasticsearch, Prometheus, and Grafana in a unified bridge network:
 
 ```bash
 docker compose up -d --build
 ```
+
 Verify container states:
+
 ```bash
 docker compose ps
 ```
@@ -14,14 +17,18 @@ docker compose ps
 ---
 
 ## 2. Infrastructure Provisioning (Terraform)
+
 Navigate to `terraform/` and run provision workflows:
+
 ```bash
 cd terraform
 terraform init
 terraform plan
 terraform apply
 ```
+
 **Provisioned Resources**:
+
 - AWS VPC (10.0.0.0/16) with isolated subnets
 - AWS RDS instance running PostgreSQL 15
 - AWS IAM Roles & security policies
@@ -30,7 +37,9 @@ terraform apply
 ---
 
 ## 3. Kubernetes Manifest Deployment (kubectl)
+
 Apply deployments to the EKS cluster namespace:
+
 ```bash
 # Apply secrets & environment maps
 kubectl apply -f kubernetes/secret.yaml

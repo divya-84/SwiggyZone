@@ -41,7 +41,7 @@ export class LoyaltyService {
       nextTierThreshold = 800;
     } else if (points >= 300) {
       tier = 'GOLD';
-      cashbackRate = 0.10; // 10%
+      cashbackRate = 0.1; // 10%
       nextTier = 'PLATINUM';
       nextTierThreshold = 800;
     } else if (points >= 100) {
@@ -56,9 +56,8 @@ export class LoyaltyService {
       nextTierThreshold = 100;
     }
 
-    const progressToNext = nextTier === 'MAX'
-      ? 100
-      : Math.min(100, Math.round((points / nextTierThreshold) * 100));
+    const progressToNext =
+      nextTier === 'MAX' ? 100 : Math.min(100, Math.round((points / nextTierThreshold) * 100));
 
     // Get database wallet
     let wallet = await this.prisma.wallet.findUnique({
@@ -85,9 +84,24 @@ export class LoyaltyService {
       walletBalance: wallet.balance,
       transactions: wallet.transactions.slice(0, 10),
       rewardsCatalog: [
-        { id: 'reward-1', title: '₹100 Wallet Credit', cost: 100, desc: 'Adds ₹100 instantly to SwiggyZone wallet ledger.' },
-        { id: 'reward-2', title: 'Free Delivery Voucher', cost: 80, desc: 'Waives delivery fee on your next 3 checkouts.' },
-        { id: 'reward-3', title: 'Free Saffron Chicken Biryani', cost: 250, desc: 'Claim a coupon for a free signature chicken biryani dish.' },
+        {
+          id: 'reward-1',
+          title: '₹100 Wallet Credit',
+          cost: 100,
+          desc: 'Adds ₹100 instantly to SwiggyZone wallet ledger.',
+        },
+        {
+          id: 'reward-2',
+          title: 'Free Delivery Voucher',
+          cost: 80,
+          desc: 'Waives delivery fee on your next 3 checkouts.',
+        },
+        {
+          id: 'reward-3',
+          title: 'Free Saffron Chicken Biryani',
+          cost: 250,
+          desc: 'Claim a coupon for a free signature chicken biryani dish.',
+        },
       ],
     };
   }

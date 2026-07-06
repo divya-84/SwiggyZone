@@ -8,7 +8,13 @@ import { PrismaService } from '../prisma.service';
 import { NotificationService } from '../notification/notification.service';
 import { PaymentService } from '../payment/payment.service';
 import { SocketGateway } from '../gateway/socket.gateway';
-import { OrderStatus, PaymentStatus, NotificationType, UserRoleName, DiscountType } from '@prisma/client';
+import {
+  OrderStatus,
+  PaymentStatus,
+  NotificationType,
+  UserRoleName,
+  DiscountType,
+} from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -87,7 +93,12 @@ export class OrderService {
         where: { code: dto.couponCode },
       });
 
-      if (coupon && coupon.isActive && coupon.expiresAt > new Date() && coupon.usedCount < coupon.maxUses) {
+      if (
+        coupon &&
+        coupon.isActive &&
+        coupon.expiresAt > new Date() &&
+        coupon.usedCount < coupon.maxUses
+      ) {
         if (subtotal >= coupon.minOrderValue) {
           if (coupon.discountType === DiscountType.PERCENTAGE) {
             const calculated = (subtotal * coupon.discountValue) / 100;

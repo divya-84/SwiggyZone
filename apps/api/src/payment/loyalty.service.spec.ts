@@ -43,9 +43,7 @@ describe('LoyaltyService Unit Tests', () => {
   it('should throw NotFoundException if user does not exist', async () => {
     mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-    await expect(service.getOrCreateProfile('invalid-id')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(service.getOrCreateProfile('invalid-id')).rejects.toThrow(NotFoundException);
   });
 
   it('should calculate Bronze tier progress if points are 0', async () => {

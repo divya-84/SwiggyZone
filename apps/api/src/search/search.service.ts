@@ -22,7 +22,9 @@ export class SearchService implements OnModuleInit {
       this.logger.log('Elasticsearch connection initialized successfully.');
       await this.createIndices();
     } catch (err) {
-      this.logger.warn('Elasticsearch is offline or unreachable. Falling back to Prisma Database Search.');
+      this.logger.warn(
+        'Elasticsearch is offline or unreachable. Falling back to Prisma Database Search.',
+      );
       this.esConnected = false;
     }
   }
@@ -127,7 +129,10 @@ export class SearchService implements OnModuleInit {
     });
 
     if (!this.esConnected) {
-      return { message: 'Elasticsearch is offline. Data synced to mock database only.', count: restaurants.length };
+      return {
+        message: 'Elasticsearch is offline. Data synced to mock database only.',
+        count: restaurants.length,
+      };
     }
 
     try {
@@ -341,10 +346,7 @@ export class SearchService implements OnModuleInit {
     const whereClause: any = { isActive: true };
 
     if (params.q) {
-      whereClause.OR = [
-        { name: { contains: params.q } },
-        { description: { contains: params.q } },
-      ];
+      whereClause.OR = [{ name: { contains: params.q } }, { description: { contains: params.q } }];
     }
 
     if (params.minPrice !== undefined || params.maxPrice !== undefined) {
@@ -366,7 +368,12 @@ export class SearchService implements OnModuleInit {
     if (params.lat !== undefined && params.lng !== undefined) {
       return restaurants
         .map((r) => {
-          const distance = this.calculateDistance(params.lat!, params.lng!, r.latitude, r.longitude);
+          const distance = this.calculateDistance(
+            params.lat!,
+            params.lng!,
+            r.latitude,
+            r.longitude,
+          );
           return { ...r, distance };
         })
         .filter((r) => r.distance <= 10) // Limit to 10km
@@ -416,7 +423,8 @@ export class SearchService implements OnModuleInit {
           menuItemId: null,
           orderId: 'mock-order-1',
           rating: 5,
-          comment: 'The packaging was super clean and leakage-proof. Taste was excellent, but delivery took 40 minutes.',
+          comment:
+            'The packaging was super clean and leakage-proof. Taste was excellent, but delivery took 40 minutes.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -440,7 +448,8 @@ export class SearchService implements OnModuleInit {
           menuItemId: null,
           orderId: 'mock-order-3',
           rating: 4,
-          comment: 'Spicy chicken biryani was so delicious! Worth the price, but slightly expensive.',
+          comment:
+            'Spicy chicken biryani was so delicious! Worth the price, but slightly expensive.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -452,7 +461,8 @@ export class SearchService implements OnModuleInit {
           menuItemId: null,
           orderId: 'mock-order-4',
           rating: 3,
-          comment: 'Packaging was slightly leaked, but taste compensated. Delivery speed was decent.',
+          comment:
+            'Packaging was slightly leaked, but taste compensated. Delivery speed was decent.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -464,7 +474,8 @@ export class SearchService implements OnModuleInit {
           menuItemId: null,
           orderId: 'mock-order-5',
           rating: 2,
-          comment: 'Poor delivery service, order arrived late and cold. Flavor was okay but overpriced.',
+          comment:
+            'Poor delivery service, order arrived late and cold. Flavor was okay but overpriced.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -484,17 +495,29 @@ export class SearchService implements OnModuleInit {
     // Topic keyword mapping helper
     const getTopicAverage = (keywords: string[], defaultScore: number) => {
       const matched = reviews.filter((r) =>
-        keywords.some((kw) => r.comment?.toLowerCase().includes(kw))
+        keywords.some((kw) => r.comment?.toLowerCase().includes(kw)),
       );
       if (matched.length === 0) return defaultScore;
       const sum = matched.reduce((acc, curr) => acc + curr.rating, 0);
       return Math.round((sum / matched.length) * 2 * 10) / 10; // score out of 10
     };
 
-    const tasteScore = getTopicAverage(['taste', 'delicious', 'flavor', 'authentic', 'yummy', 'spicy', 'salt'], 9.0);
-    const packagingScore = getTopicAverage(['package', 'packaging', 'box', 'leak', 'leaked', 'spill', 'container', 'clean'], 8.2);
-    const deliveryScore = getTopicAverage(['delivery', 'rider', 'delay', 'time', 'late', 'fast', 'speed', 'minutes'], 7.5);
-    const priceScore = getTopicAverage(['price', 'expensive', 'cheap', 'cost', 'value', 'pocket', 'money', 'affordable'], 8.0);
+    const tasteScore = getTopicAverage(
+      ['taste', 'delicious', 'flavor', 'authentic', 'yummy', 'spicy', 'salt'],
+      9.0,
+    );
+    const packagingScore = getTopicAverage(
+      ['package', 'packaging', 'box', 'leak', 'leaked', 'spill', 'container', 'clean'],
+      8.2,
+    );
+    const deliveryScore = getTopicAverage(
+      ['delivery', 'rider', 'delay', 'time', 'late', 'fast', 'speed', 'minutes'],
+      7.5,
+    );
+    const priceScore = getTopicAverage(
+      ['price', 'expensive', 'cheap', 'cost', 'value', 'pocket', 'money', 'affordable'],
+      8.0,
+    );
 
     const insights = [
       `Taste: Rated ${tasteScore}/10. Customers highly praise the authentic flavors and preparation quality.`,

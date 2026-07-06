@@ -1,4 +1,10 @@
-import { Injectable, ConflictException, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { RedisService } from '../redis.service';
 import { JwtService } from '@nestjs/jwt';
@@ -82,9 +88,12 @@ export class AuthService {
 
   async refreshTokens(refreshToken: string) {
     try {
-      const secret = this.configService.get<string>('JWT_REFRESH_SECRET', 'refresh-secret-key-54321');
+      const secret = this.configService.get<string>(
+        'JWT_REFRESH_SECRET',
+        'refresh-secret-key-54321',
+      );
       const payload = this.jwtService.verify(refreshToken, { secret });
-      
+
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
       });
@@ -103,7 +112,7 @@ export class AuthService {
   async requestOtp(dto: RequestOtpDto) {
     // Generate 6 digit code
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Store in Redis (key: "otp:phone", TTL: 300s)
     const redisKey = `otp:${dto.phoneNumber}`;
     await this.redis.set(redisKey, otp, 300);
@@ -165,7 +174,7 @@ export class AuthService {
     // In production, verify the token using google-auth-library.
     // For local testing, we extract values or create a mock account.
     this.logger.log(`Validating Google Sign-In with token prefix: ${dto.idToken.substring(0, 15)}`);
-    
+
     // Mock user details decoded from Google token
     const mockGoogleEmail = 'googleuser@gmail.com';
     const mockFirstName = 'Google';
@@ -217,7 +226,9 @@ export class AuthService {
       },
     });
 
-    this.logger.log(`[EMAIL SIMULATION] Reset password link: http://localhost:3000/reset-password?token=${resetToken}`);
+    this.logger.log(
+      `[EMAIL SIMULATION] Reset password link: http://localhost:3000/reset-password?token=${resetToken}`,
+    );
     return {
       message: 'Reset link dispatched if email exists.',
       debugToken: resetToken,
@@ -226,7 +237,7 @@ export class AuthService {
 
   private async generateTokenPair(user: User) {
     const payload = { sub: user.id, email: user.email, role: user.roleName };
-    
+
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_ACCESS_SECRET', 'access-secret-key-12345'),
       expiresIn: '15m',

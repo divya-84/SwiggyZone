@@ -28,10 +28,7 @@ export class AdminController {
 
   @Patch('users/:id/role')
   @ApiOperation({ summary: 'Modify user access role' })
-  async updateRole(
-    @Param('id') id: string,
-    @Body('role') role: UserRoleName,
-  ) {
+  async updateRole(@Param('id') id: string, @Body('role') role: UserRoleName) {
     return this.service.updateUserRole(id, role);
   }
 

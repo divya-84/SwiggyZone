@@ -31,9 +31,8 @@ export default function RestaurantDashboard() {
   const { accessToken, user } = useSelector((state: RootState) => state.auth);
 
   const [restaurant, setRestaurant] = React.useState<any | null>(null);
-  const [analytics, setAnalytics] = React.useState<any | null>(null);
   const [activeOrders, setActiveOrders] = React.useState<any[]>([]);
-  
+
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -53,13 +52,6 @@ export default function RestaurantDashboard() {
 
         const restData = await restRes.json();
         setRestaurant(restData);
-
-        // Fetch Analytics
-        const analyticsRes = await fetch(`${API_BASE_URL}/api/restaurants/${restData.id}/analytics`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const analyticsData = await analyticsRes.json();
-        setAnalytics(analyticsData);
 
         // Set mock active orders queue
         setActiveOrders([
@@ -134,7 +126,6 @@ export default function RestaurantDashboard() {
   return (
     <ProtectedRoute allowedRoles={['RESTAURANT_OWNER', 'ADMIN']}>
       <div className="min-h-screen bg-dark-bg text-dark-text pb-20">
-        
         {/* Navigation Header */}
         <header className="bg-dark-surface border-b border-dark-border py-4 px-6 flex justify-between items-center sticky top-0 z-30">
           <div className="flex items-center gap-3">
@@ -172,10 +163,12 @@ export default function RestaurantDashboard() {
 
         {/* Dashboard grid panel */}
         <main className="max-w-6xl w-full mx-auto p-4 md:p-8 space-y-8 animate-fadeIn">
-          
           {/* Dashboard Navigation Tabs */}
           <div className="flex gap-4 border-b border-dark-border pb-3 text-xs font-bold text-dark-muted">
-            <Link href="/restaurant/dashboard" className="text-brand-saffron border-b-2 border-brand-saffron pb-3 px-1">
+            <Link
+              href="/restaurant/dashboard"
+              className="text-brand-saffron border-b-2 border-brand-saffron pb-3 px-1"
+            >
               Dashboard
             </Link>
             <Link href="/restaurant/menu" className="hover:text-dark-text pb-3 px-1">
@@ -184,20 +177,12 @@ export default function RestaurantDashboard() {
           </div>
 
           {/* Quick Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Card glass className="p-5 flex items-center justify-between border-dark-border/40">
               <div className="space-y-1">
-                <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Total Revenue</span>
-                <h3 className="text-2xl font-extrabold">₹{analytics?.totalRevenue || 5800}</h3>
-              </div>
-              <div className="bg-green-500/10 text-green-500 p-2.5 rounded-xl">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-            </Card>
-
-            <Card glass className="p-5 flex items-center justify-between border-dark-border/40">
-              <div className="space-y-1">
-                <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Active Orders</span>
+                <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">
+                  Active Orders
+                </span>
                 <h3 className="text-2xl font-extrabold">{activeOrders.length}</h3>
               </div>
               <div className="bg-brand-saffron/10 text-brand-saffron p-2.5 rounded-xl">
@@ -207,7 +192,9 @@ export default function RestaurantDashboard() {
 
             <Card glass className="p-5 flex items-center justify-between border-dark-border/40">
               <div className="space-y-1">
-                <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">Kitchen Rating</span>
+                <span className="text-[10px] text-dark-muted font-bold uppercase tracking-wider">
+                  Kitchen Rating
+                </span>
                 <h3 className="text-2xl font-extrabold">★ {restaurant?.rating || '4.8'}</h3>
               </div>
               <div className="bg-amber-500/10 text-amber-500 p-2.5 rounded-xl">
@@ -216,19 +203,23 @@ export default function RestaurantDashboard() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+          <div className="max-w-4xl mx-auto space-y-4">
             {/* Active Orders Queue */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="space-y-4">
               <h3 className="text-base font-extrabold">Incoming Order Queue</h3>
               {activeOrders.length > 0 ? (
                 <div className="space-y-4">
                   {activeOrders.map((ord) => (
-                    <Card key={ord.id} className="p-5 border-dark-border/60 bg-dark-surface/40 space-y-4">
+                    <Card
+                      key={ord.id}
+                      className="p-5 border-dark-border/60 bg-dark-surface/40 space-y-4"
+                    >
                       <div className="flex justify-between items-center">
                         <div>
                           <span className="text-xs font-bold text-dark-text">{ord.customer}</span>
-                          <div className="text-[10px] text-dark-muted">{ord.time} • Order ID: {ord.id}</div>
+                          <div className="text-[10px] text-dark-muted">
+                            {ord.time} • Order ID: {ord.id}
+                          </div>
                         </div>
                         <span className="bg-brand-saffron/10 text-brand-saffron text-[10px] font-bold px-2 py-0.5 rounded uppercase">
                           {ord.status}
@@ -238,20 +229,31 @@ export default function RestaurantDashboard() {
                         {ord.items}
                       </p>
                       <div className="flex justify-between items-center pt-2">
-                        <span className="text-xs font-bold text-brand-saffron">Total Paid: ₹{ord.total}</span>
+                        <span className="text-xs font-bold text-brand-saffron">
+                          Total Paid: ₹{ord.total}
+                        </span>
                         <div className="flex gap-2">
                           {ord.status === 'PLACED' && (
-                            <Button size="sm" onClick={() => handleUpdateOrderStatus(ord.id, 'PREPARING')}>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateOrderStatus(ord.id, 'PREPARING')}
+                            >
                               Accept & Prepare
                             </Button>
                           )}
                           {ord.status === 'PREPARING' && (
-                            <Button size="sm" onClick={() => handleUpdateOrderStatus(ord.id, 'READY')}>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateOrderStatus(ord.id, 'READY')}
+                            >
                               Food Ready
                             </Button>
                           )}
                           {ord.status === 'READY' && (
-                            <Button size="sm" onClick={() => handleUpdateOrderStatus(ord.id, 'DELIVERED')}>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateOrderStatus(ord.id, 'DELIVERED')}
+                            >
                               Rider Handover
                             </Button>
                           )}
@@ -266,48 +268,6 @@ export default function RestaurantDashboard() {
                 </div>
               )}
             </div>
-
-            {/* Mock Charts (Custom CSS Analytics) */}
-            <div className="space-y-4">
-              <h3 className="text-base font-extrabold">Weekly Revenue Breakdown</h3>
-              <Card glass className="p-5 border-dark-border/40 space-y-6">
-                {/* CSS Bar Chart */}
-                <div className="h-32 flex items-end justify-between pt-4">
-                  {[
-                    { day: 'M', height: '40%' },
-                    { day: 'T', height: '65%' },
-                    { day: 'W', height: '50%' },
-                    { day: 'T', height: '80%' },
-                    { day: 'F', height: '95%' },
-                    { day: 'S', height: '100%' },
-                    { day: 'S', height: '90%' },
-                  ].map((bar, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2 flex-1">
-                      <div className="w-3 bg-brand-saffron hover:bg-brand-orange transition-all rounded-t-sm" style={{ height: bar.height }} />
-                      <span className="text-[9px] text-dark-muted font-bold">{bar.day}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Popular Dishes List */}
-                <div className="space-y-3 pt-2">
-                  <h4 className="text-[10px] text-dark-muted font-bold uppercase tracking-wider border-b border-dark-border/40 pb-2">
-                    Popular Dishes
-                  </h4>
-                  {analytics?.popularItems?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center text-xs">
-                      <span className="font-medium text-dark-muted">{item.name}</span>
-                      <span className="font-bold text-dark-text">{item.count} orders</span>
-                    </div>
-                  )) || (
-                    <div className="text-center text-[10px] text-dark-muted py-2">
-                      Popular dishes data not fetched.
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </div>
-
           </div>
         </main>
       </div>

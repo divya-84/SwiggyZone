@@ -16,9 +16,7 @@ import { Logger } from '@nestjs/common';
     origin: '*',
   },
 })
-export class SocketGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(SocketGateway.name);
 
   @WebSocketServer()
@@ -53,10 +51,7 @@ export class SocketGateway
   }
 
   @SubscribeMessage('joinOrderRoom')
-  handleJoinOrderRoom(
-    @MessageBody('orderId') orderId: string,
-    @ConnectedSocket() client: Socket,
-  ) {
+  handleJoinOrderRoom(@MessageBody('orderId') orderId: string, @ConnectedSocket() client: Socket) {
     if (orderId) {
       client.join(`order_room_${orderId}`);
       this.logger.log(`Socket client ${client.id} joined order room: order_room_${orderId}`);

@@ -12,12 +12,12 @@ import Link from 'next/link';
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  
+
   const [loginMode, setLoginMode] = React.useState<'email' | 'otp'>('email');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [phone, setPhone] = React.useState('');
-  
+
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -32,16 +32,18 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Invalid credentials');
       }
 
-      dispatch(setCredentials({
-        user: data.user,
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-      }));
+      dispatch(
+        setCredentials({
+          user: data.user,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        }),
+      );
 
       // Redirect based on role
       if (data.user.roleName === 'RESTAURANT_OWNER') {
@@ -68,7 +70,7 @@ export default function LoginPage() {
         body: JSON.stringify({ phoneNumber: formattedPhone }),
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to request OTP');
       }

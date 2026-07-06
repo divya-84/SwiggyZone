@@ -15,18 +15,13 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart(state, action: PayloadAction<CartItem>) {
-      const existingItem = state.items.find(
-        (item) => item.dish.id === action.payload.dish.id,
-      );
+      const existingItem = state.items.find((item) => item.dish.id === action.payload.dish.id);
       if (existingItem) {
         existingItem.quantity += action.payload.quantity;
       } else {
         state.items.push(action.payload);
       }
-      state.subtotal = state.items.reduce(
-        (sum, item) => sum + item.dish.price * item.quantity,
-        0,
-      );
+      state.subtotal = state.items.reduce((sum, item) => sum + item.dish.price * item.quantity, 0);
       state.tax = parseFloat((state.subtotal * 0.05).toFixed(2));
       state.total = state.subtotal + state.deliveryFee + state.tax - state.discount;
     },

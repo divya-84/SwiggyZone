@@ -1,4 +1,12 @@
-import { Controller, Post, Delete, Body, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Delete,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AiService } from './ai.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,10 +23,7 @@ export class AiController {
 
   @Post('chat')
   @ApiOperation({ summary: 'Submit user query to OpenAI food assistant' })
-  async chat(
-    @CurrentUser() user: User,
-    @Body('prompt') prompt: string,
-  ) {
+  async chat(@CurrentUser() user: User, @Body('prompt') prompt: string) {
     return this.service.chat(user.id, prompt);
   }
 
@@ -31,9 +36,7 @@ export class AiController {
   @Post('recognize-food')
   @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Upload and identify dish contents from photo vision' })
-  async recognizeFood(
-    @UploadedFile() file: any,
-  ) {
+  async recognizeFood(@UploadedFile() file: any) {
     return this.service.recognizeFood(file.buffer, file.originalname);
   }
 }

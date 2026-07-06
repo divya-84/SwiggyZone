@@ -235,13 +235,15 @@ export class RecommendationService {
         id: 'promo-demand-high',
         code: 'RUSHHOUR',
         title: 'Peak Rush Special',
-        description: 'Get Flat ₹50 off on orders above ₹400 (Celebrate dining in style during rush hour!).',
+        description:
+          'Get Flat ₹50 off on orders above ₹400 (Celebrate dining in style during rush hour!).',
         discountType: 'FLAT',
         discountValue: 50,
         minOrderValue: 400,
         badge: 'Rush Reward',
         factors: ['Demand'],
-        impact: 'Triggered by High platform demand (optimizes rider efficiency for premium orders).',
+        impact:
+          'Triggered by High platform demand (optimizes rider efficiency for premium orders).',
       });
     }
 
@@ -307,7 +309,8 @@ export class RecommendationService {
         id: 'promo-traffic-patience',
         code: 'PATIENCE',
         title: 'Patience Rush Reward',
-        description: 'Riders are delayed by traffic. Get Flat ₹30 off as a reward for your patience.',
+        description:
+          'Riders are delayed by traffic. Get Flat ₹30 off as a reward for your patience.',
         discountType: 'FLAT',
         discountValue: 30,
         minOrderValue: 200,
@@ -323,7 +326,8 @@ export class RecommendationService {
         id: 'promo-distance-near',
         code: 'NEIGHBOR',
         title: 'Local Neighborhood Deal',
-        description: 'Flat ₹40 off (Covers delivery fee!) for ordering from local joints within 2km.',
+        description:
+          'Flat ₹40 off (Covers delivery fee!) for ordering from local joints within 2km.',
         discountType: 'FLAT',
         discountValue: 40,
         minOrderValue: 150,
@@ -448,7 +452,10 @@ export class RecommendationService {
     surplusItems.forEach((surplus) => {
       const item = surplus.menuItem;
       const rest = item.category.menu.restaurant;
-      const code = `${item.name.replace(/[^a-zA-Z]/g, '').slice(0, 7).toUpperCase()}${surplus.quantity}`;
+      const code = `${item.name
+        .replace(/[^a-zA-Z]/g, '')
+        .slice(0, 7)
+        .toUpperCase()}${surplus.quantity}`;
 
       recommendedPromos.push({
         id: `promo-inventory-${item.id}`,
@@ -476,7 +483,8 @@ export class RecommendationService {
         where: { code: promo.code },
         update: {
           description: promo.description,
-          discountType: promo.discountType === 'PERCENTAGE' ? DiscountType.PERCENTAGE : DiscountType.FLAT,
+          discountType:
+            promo.discountType === 'PERCENTAGE' ? DiscountType.PERCENTAGE : DiscountType.FLAT,
           discountValue: promo.discountValue,
           maxDiscount: promo.maxDiscount || null,
           minOrderValue: promo.minOrderValue,
@@ -486,7 +494,8 @@ export class RecommendationService {
         create: {
           code: promo.code,
           description: promo.description,
-          discountType: promo.discountType === 'PERCENTAGE' ? DiscountType.PERCENTAGE : DiscountType.FLAT,
+          discountType:
+            promo.discountType === 'PERCENTAGE' ? DiscountType.PERCENTAGE : DiscountType.FLAT,
           discountValue: promo.discountValue,
           maxDiscount: promo.maxDiscount || null,
           minOrderValue: promo.minOrderValue,
@@ -514,7 +523,10 @@ export class RecommendationService {
     const dLon = this.deg2rad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(this.deg2rad(lat1)) *
+        Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }

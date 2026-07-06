@@ -6,16 +6,19 @@ import { InventoryStatus } from '@prisma/client';
 export class RestaurantService {
   constructor(private prisma: PrismaService) {}
 
-  async onboard(ownerId: string, dto: {
-    name: string;
-    description: string;
-    coverImage: string;
-    costForTwo: number;
-    latitude: number;
-    longitude: number;
-    openingHour?: string;
-    closingHour?: string;
-  }) {
+  async onboard(
+    ownerId: string,
+    dto: {
+      name: string;
+      description: string;
+      coverImage: string;
+      costForTwo: number;
+      latitude: number;
+      longitude: number;
+      openingHour?: string;
+      closingHour?: string;
+    },
+  ) {
     // Onboard restaurant and auto create menu
     const restaurant = await this.prisma.restaurant.create({
       data: {
@@ -80,7 +83,7 @@ export class RestaurantService {
 
   async createCategory(restaurantId: string, ownerId: string, name: string) {
     const restaurant = await this.verifyOwnership(restaurantId, ownerId);
-    
+
     let menu = await this.prisma.menu.findUnique({
       where: { restaurantId },
     });
@@ -100,18 +103,22 @@ export class RestaurantService {
     });
   }
 
-  async createMenuItem(categoryId: string, ownerId: string, dto: {
-    name: string;
-    description: string;
-    price: number;
-    image?: string;
-    isVeg: boolean;
-    calories: number;
-    protein?: number;
-    carbohydrates?: number;
-    fats?: number;
-    initialStock?: number;
-  }) {
+  async createMenuItem(
+    categoryId: string,
+    ownerId: string,
+    dto: {
+      name: string;
+      description: string;
+      price: number;
+      image?: string;
+      isVeg: boolean;
+      calories: number;
+      protein?: number;
+      carbohydrates?: number;
+      fats?: number;
+      initialStock?: number;
+    },
+  ) {
     const category = await this.prisma.category.findUnique({
       where: { id: categoryId },
       include: { menu: true },
@@ -139,20 +146,25 @@ export class RestaurantService {
       data: {
         menuItemId: item.id,
         quantity: dto.initialStock || 50,
-        status: (dto.initialStock || 50) > 0 ? InventoryStatus.IN_STOCK : InventoryStatus.OUT_OF_STOCK,
+        status:
+          (dto.initialStock || 50) > 0 ? InventoryStatus.IN_STOCK : InventoryStatus.OUT_OF_STOCK,
       },
     });
 
     return item;
   }
 
-  async updateMenuItem(itemId: string, ownerId: string, dto: {
-    name?: string;
-    description?: string;
-    price?: number;
-    isAvailable?: boolean;
-    isVeg?: boolean;
-  }) {
+  async updateMenuItem(
+    itemId: string,
+    ownerId: string,
+    dto: {
+      name?: string;
+      description?: string;
+      price?: number;
+      isAvailable?: boolean;
+      isVeg?: boolean;
+    },
+  ) {
     const item = await this.prisma.menuItem.findUnique({
       where: { id: itemId },
       include: { category: { include: { menu: true } } },
@@ -253,7 +265,8 @@ export class RestaurantService {
           menuItemId: null,
           orderId: 'mock-order-1',
           rating: 5,
-          comment: 'The packaging was super clean and leakage-proof. Taste was excellent, but delivery took 40 minutes.',
+          comment:
+            'The packaging was super clean and leakage-proof. Taste was excellent, but delivery took 40 minutes.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -277,7 +290,8 @@ export class RestaurantService {
           menuItemId: null,
           orderId: 'mock-order-3',
           rating: 4,
-          comment: 'Spicy chicken biryani was so delicious! Worth the price, but slightly expensive.',
+          comment:
+            'Spicy chicken biryani was so delicious! Worth the price, but slightly expensive.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -289,7 +303,8 @@ export class RestaurantService {
           menuItemId: null,
           orderId: 'mock-order-4',
           rating: 3,
-          comment: 'Packaging was slightly leaked, but taste compensated. Delivery speed was decent.',
+          comment:
+            'Packaging was slightly leaked, but taste compensated. Delivery speed was decent.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -301,7 +316,8 @@ export class RestaurantService {
           menuItemId: null,
           orderId: 'mock-order-5',
           rating: 2,
-          comment: 'Poor delivery service, order arrived late and cold. Flavor was okay but overpriced.',
+          comment:
+            'Poor delivery service, order arrived late and cold. Flavor was okay but overpriced.',
           createdAt: new Date(),
           updatedAt: new Date(),
           deliveryPartnerId: null,
@@ -321,17 +337,29 @@ export class RestaurantService {
     // Topic keyword mapping helper
     const getTopicAverage = (keywords: string[], defaultScore: number) => {
       const matched = reviews.filter((r) =>
-        keywords.some((kw) => r.comment?.toLowerCase().includes(kw))
+        keywords.some((kw) => r.comment?.toLowerCase().includes(kw)),
       );
       if (matched.length === 0) return defaultScore;
       const sum = matched.reduce((acc, curr) => acc + curr.rating, 0);
       return Math.round((sum / matched.length) * 2 * 10) / 10; // score out of 10
     };
 
-    const tasteScore = getTopicAverage(['taste', 'delicious', 'flavor', 'authentic', 'yummy', 'spicy', 'salt'], 9.0);
-    const packagingScore = getTopicAverage(['package', 'packaging', 'box', 'leak', 'leaked', 'spill', 'container', 'clean'], 8.2);
-    const deliveryScore = getTopicAverage(['delivery', 'rider', 'delay', 'time', 'late', 'fast', 'speed', 'minutes'], 7.5);
-    const priceScore = getTopicAverage(['price', 'expensive', 'cheap', 'cost', 'value', 'pocket', 'money', 'affordable'], 8.0);
+    const tasteScore = getTopicAverage(
+      ['taste', 'delicious', 'flavor', 'authentic', 'yummy', 'spicy', 'salt'],
+      9.0,
+    );
+    const packagingScore = getTopicAverage(
+      ['package', 'packaging', 'box', 'leak', 'leaked', 'spill', 'container', 'clean'],
+      8.2,
+    );
+    const deliveryScore = getTopicAverage(
+      ['delivery', 'rider', 'delay', 'time', 'late', 'fast', 'speed', 'minutes'],
+      7.5,
+    );
+    const priceScore = getTopicAverage(
+      ['price', 'expensive', 'cheap', 'cost', 'value', 'pocket', 'money', 'affordable'],
+      8.0,
+    );
 
     const insights = [
       `Taste: Rated ${tasteScore}/10. Customers highly praise the authentic flavors and preparation quality.`,

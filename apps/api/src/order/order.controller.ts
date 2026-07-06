@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -57,11 +49,7 @@ export class OrderController {
 
   @Patch(':id/status')
   @UseGuards(RolesGuard)
-  @Roles(
-    UserRoleName.RESTAURANT_OWNER,
-    UserRoleName.DELIVERY_PARTNER,
-    UserRoleName.ADMIN,
-  )
+  @Roles(UserRoleName.RESTAURANT_OWNER, UserRoleName.DELIVERY_PARTNER, UserRoleName.ADMIN)
   @ApiOperation({ summary: 'Update order lifecycle step status' })
   async updateStatus(
     @Param('id') id: string,

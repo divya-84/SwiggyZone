@@ -25,9 +25,9 @@ while ((match = enumRegex.exec(schema)) !== null) {
   const valuesStr = match[2];
   const values = valuesStr
     .split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0 && !line.startsWith('//'))
-    .map(val => val.split(/\s+/)[0]); // Get the enum value (ignore comments/annotations on the same line)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith('//'))
+    .map((val) => val.split(/\s+/)[0]); // Get the enum value (ignore comments/annotations on the same line)
   enums[name] = values;
 }
 
@@ -49,7 +49,7 @@ for (const enumName of Object.keys(enums)) {
   // roleName UserRoleName -> roleName String
   const typeRegex = new RegExp(`(\\b\\w+\\s+)${enumName}(\\b)`, 'g');
   schema = schema.replace(typeRegex, `$1String$2`);
-  
+
   // roleName UserRoleName[] -> roleName String[]
   const arrayTypeRegex = new RegExp(`(\\b\\w+\\s+)${enumName}(\\[\\])`, 'g');
   schema = schema.replace(arrayTypeRegex, `$1String$2`);
@@ -76,7 +76,7 @@ try {
   execSync('npx prisma db push --schema=apps/api/prisma/schema.prisma', {
     cwd: workspaceRoot,
     stdio: 'inherit',
-    env: { ...process.env, DATABASE_URL: 'file:./dev.db' }
+    env: { ...process.env, DATABASE_URL: 'file:./dev.db' },
   });
   console.log('✔ Local SQLite database (dev.db) initialized successfully');
 } catch (err) {
@@ -109,9 +109,12 @@ const clientDirs = [
   path.join(workspaceRoot, 'apps', 'api', 'node_modules', '.prisma', 'client'),
   path.join(workspaceRoot, 'apps', 'web', 'node_modules', '@prisma', 'client'),
   path.join(workspaceRoot, 'apps', 'web', 'node_modules', '.prisma', 'client'),
-].filter(d => fs.existsSync(d));
+].filter((d) => fs.existsSync(d));
 
-console.log(`Found ${clientDirs.length} Prisma Client directories:`, clientDirs.map(d => path.relative(workspaceRoot, d)));
+console.log(
+  `Found ${clientDirs.length} Prisma Client directories:`,
+  clientDirs.map((d) => path.relative(workspaceRoot, d)),
+);
 
 let filesWritten = 0;
 
@@ -119,12 +122,10 @@ for (const clientDir of clientDirs) {
   const targetJsFiles = [
     path.join(clientDir, 'index.js'),
     path.join(clientDir, 'default.js'),
-    path.join(clientDir, 'index.browser.js')
+    path.join(clientDir, 'index.browser.js'),
   ];
 
-  const targetTsFiles = [
-    path.join(clientDir, 'index.d.ts')
-  ];
+  const targetTsFiles = [path.join(clientDir, 'index.d.ts')];
 
   for (const jsFile of targetJsFiles) {
     if (fs.existsSync(jsFile)) {
@@ -159,7 +160,7 @@ try {
   execSync('npx ts-node apps/api/prisma/seed.ts', {
     cwd: workspaceRoot,
     stdio: 'inherit',
-    env: { ...process.env, DATABASE_URL: 'file:./dev.db' }
+    env: { ...process.env, DATABASE_URL: 'file:./dev.db' },
   });
   console.log('✔ Database seeded successfully!');
 } catch (err) {

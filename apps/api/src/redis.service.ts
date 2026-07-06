@@ -26,7 +26,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.client.on('error', (err) => {
         if (!this.isMock) {
           this.isMock = true;
-          console.warn(`Redis connection failed (host: ${host}, port: ${port}). Falling back to in-memory cache. Error: ${err.message}`);
+          console.warn(
+            `Redis connection failed (host: ${host}, port: ${port}). Falling back to in-memory cache. Error: ${err.message}`,
+          );
         }
       });
 

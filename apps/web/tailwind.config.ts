@@ -21,7 +21,7 @@ const config: Config = {
           border: '#334155',
           text: '#F8FAFC',
           muted: '#94A3B8',
-        }
+        },
       },
     },
   },

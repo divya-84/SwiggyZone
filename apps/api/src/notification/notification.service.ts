@@ -91,7 +91,9 @@ export class NotificationService {
       whatsapp: preferences.whatsapp ?? current.whatsapp,
       inApp: preferences.inApp ?? current.inApp,
     };
-    this.addQueueLog(`[Preferences] User updated preferences: ${JSON.stringify(this.preferencesStore[userId])}`);
+    this.addQueueLog(
+      `[Preferences] User updated preferences: ${JSON.stringify(this.preferencesStore[userId])}`,
+    );
     return this.preferencesStore[userId];
   }
 
@@ -115,7 +117,8 @@ export class NotificationService {
     const templates: Record<string, { title: string; content: string }> = {
       ORDER_PLACED: {
         title: 'Order Confirmed 🍔',
-        content: 'Your order #8a9c7b from Saffron Hub Kitchen has been confirmed. Expected delivery in 35 mins.',
+        content:
+          'Your order #8a9c7b from Saffron Hub Kitchen has been confirmed. Expected delivery in 35 mins.',
       },
       ORDER_READY: {
         title: 'Food is Ready! 📦',
@@ -162,12 +165,19 @@ export class NotificationService {
           const isEnabled = preferences[channel as keyof typeof preferences];
           if (!isEnabled) {
             job.status = 'FAILED';
-            this.addQueueLog(`[Worker] ${channel.toUpperCase()} dispatch failed: Channel disabled in preferences.`);
+            this.addQueueLog(
+              `[Worker] ${channel.toUpperCase()} dispatch failed: Channel disabled in preferences.`,
+            );
             return;
           }
 
           if (channel === 'inApp') {
-            await this.sendNotification(userId, template.title, template.content, NotificationType.SYSTEM);
+            await this.sendNotification(
+              userId,
+              template.title,
+              template.content,
+              NotificationType.SYSTEM,
+            );
           }
 
           job.status = 'COMPLETED';

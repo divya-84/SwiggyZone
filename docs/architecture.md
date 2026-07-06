@@ -21,12 +21,14 @@ graph TD
 ## 2. Developer Guide
 
 ### Monorepo Workspaces Layout
+
 - **`apps/api`**: NestJS modular application containing controllers, services, modules, guards, decorators, and Prisma ORM schemas.
 - **`apps/web`**: Next.js 15 client dashboard featuring Redux state management and Tailwind CSS styling.
 - **`packages/shared`**: Common types, schemas, and interface declarations.
 - **`packages/ui`**: Shared atomic UI design system library.
 
 ### Development Workflow
+
 1. **Initialize Workspace**:
    ```bash
    npm install
@@ -44,6 +46,7 @@ graph TD
    - Swagger docs: `http://localhost:4000/docs`
 
 ### Code Quality Standards
+
 - **Linter & Formatting**:
   ```bash
   npm run lint
